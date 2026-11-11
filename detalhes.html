@@ -209,7 +209,7 @@ footer {
 
     <section class="avaliacao">
         <h2>⭐ Avalie este filme</h2>
-        <p>Escolha de 1 a 5 estrelas. Sua nota fica salva neste navegador.</p>
+        <p>Escolha de 1 a 5 estrelas. Sua avaliação é enviada para o banco de dados e contabilizada na média da comunidade.</p>
         <div class="estrelas" id="estrelas" role="group" aria-label="Sua nota para o filme">
             <button type="button" data-nota="1" aria-label="1 estrela">★</button>
             <button type="button" data-nota="2" aria-label="2 estrelas">★</button>
@@ -222,14 +222,14 @@ footer {
 
     <section class="comentarios">
         <h2>💬 Deixe sua opinião</h2>
-        <p class="aviso-local">As opiniões são guardadas apenas neste navegador e não são compartilhadas com outros visitantes.</p>
+        <p class="aviso-local">As opiniões são publicadas online e ficam visíveis para todos os visitantes do Ponto Zero.</p>
         <label for="nomeComentario">Seu nome (opcional)</label>
         <input id="nomeComentario" class="campo-comentario" type="text" maxlength="30" placeholder="Como podemos te chamar?">
         <label for="textoComentario">Seu comentário</label>
         <textarea id="textoComentario" maxlength="500" placeholder="Conte o que você achou do filme..." required></textarea>
         <div class="rodape-form"><small id="contadorComentario">0/500</small><button class="botao" id="enviar" type="button">Publicar opinião</button></div>
         <p id="mensagemComentario" class="mensagem-comentario" role="status" aria-live="polite"></p>
-        <h3 class="titulo-lista">Opiniões salvas neste navegador</h3>
+        <h3 class="titulo-lista">Opiniões da comunidade</h3>
         <div id="listaComentarios"></div>
     </section>
 
@@ -383,7 +383,7 @@ if (!filme) {
     else document.querySelector(".trailer").parentElement.style.display = "none";
 }
 
-// Avaliações e comentários locais por filme.
+// Avaliações e comentários compartilhados pelo Supabase.
 const supabaseClient = window.supabase.createClient(
     "https://fkeayqbvmifdzsiskqno.supabase.co",
     "sb_publishable_6MqEvatKcbWY3gfwDAglBA_jftIs8ty"
