@@ -28,8 +28,13 @@ header {
     border-bottom: 1px solid #292930;
 }
 
-.logo { font-size: 27px; }
-.logo span { color: #e63946; }
+.logo {
+    font-size: 27px;
+}
+
+.logo span {
+    color: #e63946;
+}
 
 nav {
     display: flex;
@@ -41,7 +46,9 @@ nav a {
     text-decoration: none;
 }
 
-nav a:hover { color: #e63946; }
+nav a:hover {
+    color: #e63946;
+}
 
 .hero {
     padding: 75px 8%;
@@ -53,10 +60,18 @@ nav a:hover { color: #e63946; }
     margin-bottom: 15px;
 }
 
-.hero h2 span { color: #e63946; }
-.hero p { color: #aaa; font-size: 17px; }
+.hero h2 span {
+    color: #e63946;
+}
 
-.catalogo { padding: 45px 8%; }
+.hero p {
+    color: #aaa;
+    font-size: 17px;
+}
+
+.catalogo {
+    padding: 45px 8%;
+}
 
 .catalogo h2 {
     margin-bottom: 25px;
@@ -90,8 +105,8 @@ nav a:hover { color: #e63946; }
     cursor: pointer;
 }
 
-.filtros button:hover,
-.filtros button.ativo {
+.filtros button.ativo,
+.filtros button:hover {
     background: #e63946;
     border-color: #e63946;
 }
@@ -103,67 +118,104 @@ nav a:hover { color: #e63946; }
 }
 
 .card {
-    display: block;
     background: #17171e;
     border: 1px solid #292930;
     border-radius: 10px;
     overflow: hidden;
     transition: 0.3s;
-    color: white;
-    text-decoration: none;
 }
 
 .card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-5px);
     border-color: #e63946;
 }
 
 .card img {
     width: 100%;
-    height: 290px;
+    height: 310px;
     object-fit: cover;
     display: block;
 }
 
-.info { padding: 16px; }
+.info {
+    padding: 17px;
+}
 
-.info h3 { margin-bottom: 9px; }
+.info h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
 
 .genero {
     color: #aaa;
     font-size: 13px;
-    margin-bottom: 12px;
+    margin-bottom: 17px;
 }
 
-.nota {
-    color: #f5c542;
-    font-weight: bold;
-    margin-bottom: 17px;
+.detalhes {
+    display: inline-block;
+    color: white;
+    background: #292930;
+    padding: 9px 13px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.detalhes:hover {
+    background: #e63946;
+}
+
+.streaming {
+    border-top: 1px solid #333;
+    padding-top: 15px;
+}
+
+.streaming h4 {
+    color: #e63946;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.plataformas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 13px;
+}
+
+.plataforma {
+    background: #292930;
+    color: #eee;
+    border: 1px solid #41414b;
+    border-radius: 5px;
+    padding: 7px 9px;
+    font-size: 12px;
 }
 
 .assistir {
     display: block;
-    background: #292930;
-    color: white;
-    border: 1px solid #e63946;
-    padding: 12px;
     text-align: center;
-    border-radius: 6px;
+    background: #e63946;
+    color: white;
     text-decoration: none;
-    font-size: 14px;
+    padding: 11px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: bold;
-    transition: 0.3s;
+    transition: 0.2s;
 }
 
 .assistir:hover {
-    background: #e63946;
+    background: #bd2633;
 }
 
 .aviso {
-    color: #888;
-    font-size: 11px;
-    margin-top: 9px;
-    text-align: center;
+    color: #999;
+    font-size: 12px;
+    margin-top: 12px;
+    line-height: 1.5;
 }
 
 .vazio {
@@ -192,7 +244,9 @@ footer {
         justify-content: center;
     }
 
-    .hero h2 { font-size: 32px; }
+    .hero h2 {
+        font-size: 32px;
+    }
 }
 </style>
 </head>
@@ -212,12 +266,12 @@ footer {
 
 <section class="hero">
     <h2>Seu próximo filme <span>favorito está aqui.</span></h2>
-    <p>Descubra histórias, explore gêneros e encontre grandes filmes.</p>
+    <p>Descubra histórias, explore gêneros e encontre onde assistir.</p>
 </section>
 
 <main class="catalogo">
 
-    <h2>Explore os filmes</h2>
+    <h2>🎬 Explore os filmes</h2>
 
     <input
         type="text"
@@ -238,139 +292,202 @@ footer {
 
         <!-- INTERESTELAR -->
         <article class="card" data-genero="ficcao">
-            <a href="detalhes.html?filme=interestelar">
-                <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
-                alt="Interestelar">
-            </a>
+            <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
+                 alt="Interestelar">
 
             <div class="info">
                 <h3>Interestelar</h3>
                 <p class="genero">Ficção científica • 2014</p>
-                <p class="nota">★ Destaque do catálogo</p>
 
-                <a class="assistir"
-                href="https://www.justwatch.com/br/busca?q=Interestelar"
-                target="_blank" rel="noopener">
-                    ▶ Onde assistir
+                <a class="detalhes"
+                   href="detalhes.html?filme=interestelar">
+                   Ver detalhes →
                 </a>
-                <p class="aviso">Consulte as opções de streaming</p>
+
+                <div class="streaming">
+                    <h4>▶ Onde assistir</h4>
+
+                    <div class="plataformas">
+                        <span class="plataforma">HBO Max</span>
+                        <span class="plataforma">Prime Video</span>
+                    </div>
+
+                    <a class="assistir"
+                       href="https://www.justwatch.com/br/filme/interestelar"
+                       target="_blank" rel="noopener">
+                       Ver opções de streaming
+                    </a>
+                </div>
             </div>
         </article>
 
         <!-- BATMAN -->
         <article class="card" data-genero="acao">
-            <a href="detalhes.html?filme=batman">
-                <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"
-                alt="Batman: O Cavaleiro das Trevas">
-            </a>
+            <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"
+                 alt="Batman O Cavaleiro das Trevas">
 
             <div class="info">
                 <h3>Batman: O Cavaleiro das Trevas</h3>
                 <p class="genero">Ação • 2008</p>
-                <p class="nota">★ Destaque do catálogo</p>
 
-                <a class="assistir"
-                href="https://www.justwatch.com/br/filme/o-cavaleiro-das-trevas"
-                target="_blank" rel="noopener">
-                    ▶ Onde assistir
+                <a class="detalhes"
+                   href="detalhes.html?filme=batman">
+                   Ver detalhes →
                 </a>
-                <p class="aviso">Consulte as opções de streaming</p>
+
+                <div class="streaming">
+                    <h4>▶ Onde assistir</h4>
+
+                    <div class="plataformas">
+                        <span class="plataforma">HBO Max</span>
+                        <span class="plataforma">Prime Video</span>
+                    </div>
+
+                    <a class="assistir"
+                       href="https://www.justwatch.com/br/filme/o-cavaleiro-das-trevas"
+                       target="_blank" rel="noopener">
+                       Ver opções de streaming
+                    </a>
+                </div>
             </div>
         </article>
 
         <!-- A ORIGEM -->
         <article class="card" data-genero="ficcao">
-            <a href="detalhes.html?filme=origem">
-                <img src="https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg"
-                alt="A Origem">
-            </a>
+            <img src="https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg"
+                 alt="A Origem">
 
             <div class="info">
                 <h3>A Origem</h3>
                 <p class="genero">Ficção científica • 2010</p>
-                <p class="nota">★ Destaque do catálogo</p>
 
-                <a class="assistir"
-                href="https://www.justwatch.com/br/filme/a-origem"
-                target="_blank" rel="noopener">
-                    ▶ Onde assistir
+                <a class="detalhes"
+                   href="detalhes.html?filme=origem">
+                   Ver detalhes →
                 </a>
-                <p class="aviso">Consulte as opções de streaming</p>
+
+                <div class="streaming">
+                    <h4>▶ Onde assistir</h4>
+
+                    <div class="plataformas">
+                        <span class="plataforma">HBO Max</span>
+                    </div>
+
+                    <a class="assistir"
+                       href="https://www.justwatch.com/br/filme/a-origem"
+                       target="_blank" rel="noopener">
+                       Ver opções de streaming
+                    </a>
+                </div>
             </div>
         </article>
 
         <!-- PARASITA -->
         <article class="card" data-genero="suspense">
-            <a href="detalhes.html?filme=parasita">
-                <img src="https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
-                alt="Parasita">
-            </a>
+            <img src="https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
+                 alt="Parasita">
 
             <div class="info">
                 <h3>Parasita</h3>
                 <p class="genero">Suspense • 2019</p>
-                <p class="nota">★ Destaque do catálogo</p>
 
-                <a class="assistir"
-                href="https://www.justwatch.com/br/busca?q=Parasita%202019"
-                target="_blank" rel="noopener">
-                    ▶ Onde assistir
+                <a class="detalhes"
+                   href="detalhes.html?filme=parasita">
+                   Ver detalhes →
                 </a>
-                <p class="aviso">Consulte as opções de streaming</p>
+
+                <div class="streaming">
+                    <h4>▶ Onde assistir</h4>
+
+                    <div class="plataformas">
+                        <span class="plataforma">Netflix</span>
+                        <span class="plataforma">Prime Video</span>
+                        <span class="plataforma">Telecine</span>
+                    </div>
+
+                    <a class="assistir"
+                       href="https://www.justwatch.com/br/filme/parasitas"
+                       target="_blank" rel="noopener">
+                       Ver opções de streaming
+                    </a>
+                </div>
             </div>
         </article>
 
         <!-- UM SONHO DE LIBERDADE -->
         <article class="card" data-genero="drama">
-            <a href="detalhes.html?filme=liberdade">
-                <img src="https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg"
-                alt="Um Sonho de Liberdade">
-            </a>
+            <img src="https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg"
+                 alt="Um Sonho de Liberdade">
 
             <div class="info">
                 <h3>Um Sonho de Liberdade</h3>
                 <p class="genero">Drama • 1994</p>
-                <p class="nota">★ Destaque do catálogo</p>
 
-                <a class="assistir"
-                href="https://www.justwatch.com/br/busca?q=Um%20Sonho%20de%20Liberdade"
-                target="_blank" rel="noopener">
-                    ▶ Onde assistir
+                <a class="detalhes"
+                   href="detalhes.html?filme=liberdade">
+                   Ver detalhes →
                 </a>
-                <p class="aviso">Consulte as opções de streaming</p>
+
+                <div class="streaming">
+                    <h4>▶ Onde assistir</h4>
+
+                    <div class="plataformas">
+                        <span class="plataforma">Netflix</span>
+                        <span class="plataforma">HBO Max</span>
+                    </div>
+
+                    <a class="assistir"
+                       href="https://www.justwatch.com/br/filme/the-shawshank-redemption"
+                       target="_blank" rel="noopener">
+                       Ver opções de streaming
+                    </a>
+                </div>
             </div>
         </article>
 
         <!-- MATRIX -->
         <article class="card" data-genero="acao">
-            <a href="detalhes.html?filme=matrix">
-                <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"
-                alt="Matrix">
-            </a>
+            <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"
+                 alt="Matrix">
 
             <div class="info">
                 <h3>Matrix</h3>
                 <p class="genero">Ação • 1999</p>
-                <p class="nota">★ Destaque do catálogo</p>
 
-                <a class="assistir"
-                href="https://www.justwatch.com/br/busca?q=Matrix%201999"
-                target="_blank" rel="noopener">
-                    ▶ Onde assistir
+                <a class="detalhes"
+                   href="detalhes.html?filme=matrix">
+                   Ver detalhes →
                 </a>
-                <p class="aviso">Consulte as opções de streaming</p>
+
+                <div class="streaming">
+                    <h4>▶ Onde assistir</h4>
+
+                    <div class="plataformas">
+                        <span class="plataforma">HBO Max</span>
+                        <span class="plataforma">Globoplay</span>
+                    </div>
+
+                    <a class="assistir"
+                       href="https://www.justwatch.com/br/filme/matrix"
+                       target="_blank" rel="noopener">
+                       Ver opções de streaming
+                    </a>
+                </div>
             </div>
         </article>
 
     </div>
 
+    <p class="aviso">
+        Disponibilidade consultada em novembro de 2026.
+        Os catálogos podem mudar. Consulte as opções atualizadas
+        antes de assinar ou alugar.
+    </p>
+
 </main>
 
 <footer>
     <p>© 2026 Ponto Zero. Todos os direitos reservados.</p>
-    <p style="margin-top:10px;font-size:12px;">
-        Consulte a disponibilidade dos filmes nas plataformas.
-    </p>
 </footer>
 
 <script>
