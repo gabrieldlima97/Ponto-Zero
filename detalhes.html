@@ -191,7 +191,6 @@ footer {
             <div id="etiquetas"></div>
             <p id="sinopse"></p>
             <p id="direcao" style="margin-top:15px"></p>
-            <a id="linkAssistir" class="botao" style="display:inline-block;text-decoration:none" href="onde-assistir.html">Onde assistir neste site →</a>
         </div>
     </section>
 
@@ -371,8 +370,6 @@ if (!filme) {
     imagemPoster.src = filme.poster || ("https://placehold.co/500x750/17171e/e63946?text=" + encodeURIComponent(filme.titulo));
     document.getElementById("sinopse").textContent = filme.sinopse;
     document.getElementById("direcao").textContent = filme.direcao;
-    document.getElementById("linkAssistir").href = "onde-assistir.html#" + slug;
-
     document.getElementById("etiquetas").innerHTML =
         `<span class="etiqueta">${filme.genero}</span>
          <span class="etiqueta">${filme.ano}</span>
