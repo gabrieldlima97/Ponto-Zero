@@ -350,6 +350,28 @@ botoes.forEach(botao => {
         filtrarFilmes();
     });
 });
+const linksFilmes = {
+    "Interestelar": "interestelar",
+    "Batman: O Cavaleiro das Trevas": "batman",
+    "A Origem": "origem",
+    "Parasita": "parasita",
+    "Um Sonho de Liberdade": "liberdade",
+    "Matrix": "matrix"
+};
+
+document.querySelectorAll(".card").forEach(card => {
+    card.style.cursor = "pointer";
+
+    card.addEventListener("click", () => {
+        const titulo = card.querySelector("h3").textContent;
+        const slug = linksFilmes[titulo];
+
+        if (slug) {
+            window.location.href = "detalhes.html?filme=" + slug;
+        }
+    });
+});
+
 </script>
 
 </body>
