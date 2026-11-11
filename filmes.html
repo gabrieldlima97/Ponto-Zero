@@ -773,11 +773,16 @@ const botoes=document.querySelectorAll(".filtros button");
 const cards=document.querySelectorAll(".card");
 const lista=document.getElementById("listaFilmes");
 let generoSelecionado="todos";
+let apenasFavoritos=false;
+function favoritosSalvos(){try{return JSON.parse(localStorage.getItem("pz-favoritos")||"[]")}catch(e){return []}}
 function filtrarFilmes(){
   const pesquisa=busca.value.toLowerCase();let encontrados=0;
   cards.forEach(card=>{
     const nome=card.querySelector("h3").textContent.toLowerCase();
-    const mostrar=nome.includes(pesquisa)&&(generoSelecionado==="todos"||card.dataset.genero===generoSelecionado);
+    const link=card.querySelector("a.detalhes");
+    const slug=link?new URL(link.href,location.href).searchParams.get("filme"):"";
+    const favorito=favoritosSalvos().includes(slug);
+    const mostrar=nome.includes(pesquisa)&&(generoSelecionado==="todos"||card.dataset.genero===generoSelecionado)&&(!apenasFavoritos||favorito);
     card.style.display=mostrar?"block":"none";if(mostrar)encontrados++;
   });
   let mensagem=document.getElementById("semResultados");
@@ -802,6 +807,54 @@ botoes.forEach(botao=>botao.addEventListener("click",()=>{
     const slug = new URL(link.href, location.href).searchParams.get("filme");
     if (slug && mapa[slug]) img.src = mapa[slug];
   });
+})();
+</script>
+
+<style>
+.favoritar{display:block;width:100%;margin-top:10px;padding:10px 12px;border:1px solid #555;border-radius:6px;background:#22222b;color:#fff;font-weight:bold;cursor:pointer;transition:.2s}
+.favoritar:hover{border-color:#e63946;color:#ff7b84}
+.favoritar.salvo{background:#3a1820;border-color:#e63946;color:#ff8b94}
+#filtroFavoritos{background:#191920;color:#fff;border:1px solid #555;padding:10px 17px;border-radius:20px;cursor:pointer}
+#filtroFavoritos.ativo{background:#e63946;border-color:#e63946}
+</style>
+<script>
+(function(){
+  const lista=document.getElementById("listaFilmes");
+  const filtros=document.querySelector(".filtros");
+  if(!lista||!filtros)return;
+  function ler(){try{return JSON.parse(localStorage.getItem("pz-favoritos")||"[]")}catch(e){return []}}
+  function salvar(ids){localStorage.setItem("pz-favoritos",JSON.stringify(ids))}
+  lista.querySelectorAll(".card").forEach(card=>{
+    const link=card.querySelector("a.detalhes");
+    const info=card.querySelector(".info");
+    if(!link||!info)return;
+    const slug=new URL(link.href,location.href).searchParams.get("filme");
+    if(!slug||info.querySelector(".favoritar"))return;
+    const botao=document.createElement("button");
+    botao.type="button";botao.className="favoritar";
+    function atualizar(){
+      const salvo=ler().includes(slug);
+      botao.textContent=salvo?"♥ Remover dos favoritos":"♡ Adicionar aos favoritos";
+      botao.classList.toggle("salvo",salvo);
+      botao.setAttribute("aria-pressed",String(salvo));
+    }
+    botao.addEventListener("click",()=>{
+      let ids=ler();
+      ids=ids.includes(slug)?ids.filter(id=>id!==slug):[...ids,slug];
+      salvar(ids);atualizar();
+      if(typeof filtrarFilmes==="function")filtrarFilmes();
+    });
+    info.appendChild(botao);atualizar();
+  });
+  const filtro=document.createElement("button");
+  filtro.id="filtroFavoritos";filtro.type="button";filtro.textContent="♥ Meus favoritos";
+  filtro.addEventListener("click",()=>{
+    apenasFavoritos=!apenasFavoritos;
+    filtro.classList.toggle("ativo",apenasFavoritos);
+    filtro.setAttribute("aria-pressed",String(apenasFavoritos));
+    if(typeof filtrarFilmes==="function")filtrarFilmes();
+  });
+  filtros.appendChild(filtro);
 })();
 </script>
 </body>
