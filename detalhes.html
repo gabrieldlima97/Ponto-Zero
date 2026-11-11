@@ -348,8 +348,8 @@ const filmes = {
         direcao: "Direção: Joseph Kosinski", trailer: "giXco2jaZ_4"
     },
 
-    ...Object.fromEntries((window.filmesExtras || []).map(([slug,titulo,ano,genero,duracao,diretor,sinopse])=>[slug,{titulo,ano,genero,duracao,poster:posteresExtras[slug] || "https://placehold.co/500x750/17171e/e63946?text="+encodeURIComponent(titulo),sinopse,direcao:"Direção: "+diretor,trailer:""}]))
 };
+Object.assign(filmes, Object.fromEntries((window.filmesExtras || []).map(([slug,titulo,ano,genero,duracao,diretor,sinopse])=>[slug,{titulo,ano,genero,duracao,poster:posteresExtras[slug] || "https://placehold.co/500x750/17171e/e63946?text="+encodeURIComponent(titulo),sinopse,direcao:"Direção: "+diretor,trailer:""}])));
 
 const parametros = new URLSearchParams(window.location.search);
 const slug = parametros.get("filme");
