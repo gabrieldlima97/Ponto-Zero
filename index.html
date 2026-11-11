@@ -52,19 +52,6 @@ nav a:hover {
   color: #e63946;
 }
 
-nav a.nav-recomendados {
-  color: #ffffff;
-  background: #e63946;
-  padding: 9px 14px;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-nav a.nav-recomendados:hover {
-  background: #c92f3b;
-  color: #ffffff;
-}
-
 .destaque {
   padding: 110px 8%;
   background: linear-gradient(90deg, #17121a, #0b0b0f);
@@ -84,16 +71,6 @@ nav a.nav-recomendados:hover {
   color: #aaaaaa;
   font-size: 18px;
   margin-bottom: 30px;
-}
-
-.botao {
-  display: inline-block;
-  background: #e63946;
-  color: white;
-  padding: 14px 25px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: bold;
 }
 
 .conteudo {
@@ -172,6 +149,9 @@ footer {
     font-size: 34px;
   }
 }
+/* Garante que o antigo botão de recomendações não apareça na página inicial. */
+a.botao,
+.botao { display: none !important; }
 </style>
 </head>
 
