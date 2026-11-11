@@ -239,6 +239,7 @@ footer {
     © 2026 Ponto Zero. Todos os direitos reservados.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
 <script src="catalogo-extra.js"></script>
 <script src="posteres.js?v=2"></script>
 <script>
@@ -383,26 +384,15 @@ if (!filme) {
 }
 
 // Avaliações e comentários locais por filme.
-const chaveNota = "pz-nota-" + slug;
-const chaveComentarios = "pz-comentarios-" + slug;
-const lerJSON = (chave, padrao) => {
-    try {
-        const valor = JSON.parse(localStorage.getItem(chave) || "null");
-        return valor === null ? padrao : valor;
-    } catch (erro) {
-        return padrao;
-    }
-};
-let notaAtual = Number(lerJSON(chaveNota, 0)) || 0;
-let comentarios = lerJSON(chaveComentarios, []);
-if (!Array.isArray(comentarios)) comentarios = [];
-// Mantém compatibilidade com comentários antigos, que eram apenas textos.
-comentarios = comentarios.map(item => typeof item === "string"
-    ? { nome: "Visitante", texto: item, data: "" }
-    : item
+const supabaseClient = window.supabase.createClient(
+    "https://fkeayqbvmifdzsiskqno.supabase.co",
+    "sb_publishable_6MqEvatKcbWY3gfwDAglBA_jftIs8ty"
 );
 
 const botoesEstrelas = document.querySelectorAll(".estrelas button");
+let notaAtual = 0;
+let comentarios = [];
+
 function atualizarEstrelas() {
     botoesEstrelas.forEach(botao => {
         const selecionada = Number(botao.dataset.nota) <= notaAtual;
@@ -410,37 +400,63 @@ function atualizarEstrelas() {
         botao.setAttribute("aria-pressed", String(Number(botao.dataset.nota) === notaAtual));
     });
     document.getElementById("notaTexto").textContent = notaAtual
-        ? "Sua avaliação: " + notaAtual + " de 5 estrelas. Você pode alterá-la clicando em outra estrela."
-        : "Você ainda não avaliou este filme.";
+        ? "Sua avaliação: " + notaAtual + " de 5 estrelas."
+        : "Escolha uma nota para este filme.";
 }
+
+async function carregarAvaliacoes() {
+    const texto = document.getElementById("notaTexto");
+    const { data, error } = await supabaseClient
+        .from("avaliacoes")
+        .select("nota")
+        .eq("filme_slug", slug);
+    if (error) {
+        texto.textContent = "Não foi possível carregar as avaliações agora.";
+        console.error("Erro ao carregar avaliações:", error);
+        return;
+    }
+    if (!data.length) {
+        texto.textContent = "Este filme ainda não recebeu avaliações.";
+        return;
+    }
+    const media = data.reduce((soma, item) => soma + item.nota, 0) / data.length;
+    texto.textContent = "Média da comunidade: " + media.toFixed(1).replace(".", ",") +
+        " de 5 estrelas (" + data.length + (data.length === 1 ? " avaliação)." : " avaliações).");
+}
+
 botoesEstrelas.forEach(botao => {
-    botao.addEventListener("click", () => {
+    botao.addEventListener("click", async () => {
         notaAtual = Number(botao.dataset.nota);
-        try {
-            localStorage.setItem(chaveNota, String(notaAtual));
-            atualizarEstrelas();
-        } catch (erro) {
-            document.getElementById("notaTexto").textContent = "Não foi possível salvar a nota neste navegador.";
+        atualizarEstrelas();
+        const { error } = await supabaseClient.from("avaliacoes").insert({
+            filme_slug: slug,
+            nota: notaAtual
+        });
+        if (error) {
+            document.getElementById("notaTexto").textContent = "Não foi possível publicar sua nota. Tente novamente.";
+            console.error("Erro ao salvar avaliação:", error);
+            return;
         }
+        await carregarAvaliacoes();
     });
 });
-atualizarEstrelas();
 
 const campoNome = document.getElementById("nomeComentario");
 const campoTexto = document.getElementById("textoComentario");
 const contador = document.getElementById("contadorComentario");
 const mensagem = document.getElementById("mensagemComentario");
+
 function mostrarComentarios() {
     const lista = document.getElementById("listaComentarios");
     lista.replaceChildren();
     if (!comentarios.length) {
         const vazio = document.createElement("p");
         vazio.className = "vazio-comentarios";
-        vazio.textContent = "Ainda não há opiniões salvas neste navegador.";
+        vazio.textContent = "Ainda não há opiniões para este filme. Seja o primeiro!";
         lista.appendChild(vazio);
         return;
     }
-    comentarios.slice().reverse().forEach(comentario => {
+    comentarios.forEach(comentario => {
         const card = document.createElement("article");
         card.className = "comentario";
         const cabecalho = document.createElement("div");
@@ -448,9 +464,9 @@ function mostrarComentarios() {
         const nome = document.createElement("strong");
         nome.textContent = comentario.nome || "Visitante";
         cabecalho.appendChild(nome);
-        if (comentario.data) {
+        if (comentario.criado_em) {
             const data = document.createElement("time");
-            data.textContent = comentario.data;
+            data.textContent = new Date(comentario.criado_em).toLocaleString("pt-BR");
             cabecalho.appendChild(data);
         }
         const texto = document.createElement("p");
@@ -459,10 +475,27 @@ function mostrarComentarios() {
         lista.appendChild(card);
     });
 }
+
+async function carregarComentarios() {
+    const { data, error } = await supabaseClient
+        .from("comentarios")
+        .select("nome,texto,criado_em")
+        .eq("filme_slug", slug)
+        .order("criado_em", { ascending: false });
+    if (error) {
+        mensagem.textContent = "Não foi possível carregar as opiniões agora.";
+        console.error("Erro ao carregar comentários:", error);
+        return;
+    }
+    comentarios = data || [];
+    mostrarComentarios();
+}
+
 campoTexto.addEventListener("input", () => {
     contador.textContent = campoTexto.value.length + "/500";
 });
-document.getElementById("enviar").addEventListener("click", () => {
+
+document.getElementById("enviar").addEventListener("click", async () => {
     const texto = campoTexto.value.trim();
     const nome = campoNome.value.trim().slice(0, 30) || "Visitante";
     mensagem.textContent = "";
@@ -471,23 +504,30 @@ document.getElementById("enviar").addEventListener("click", () => {
         campoTexto.focus();
         return;
     }
-    comentarios.push({
+    const botao = document.getElementById("enviar");
+    botao.disabled = true;
+    botao.textContent = "Publicando...";
+    const { error } = await supabaseClient.from("comentarios").insert({
+        filme_slug: slug,
         nome,
-        texto: texto.slice(0, 500),
-        data: new Date().toLocaleDateString("pt-BR")
+        texto: texto.slice(0, 500)
     });
-    try {
-        localStorage.setItem(chaveComentarios, JSON.stringify(comentarios));
-        campoTexto.value = "";
-        contador.textContent = "0/500";
-        mensagem.textContent = "Opinião salva neste navegador!";
-        mostrarComentarios();
-    } catch (erro) {
-        comentarios.pop();
-        mensagem.textContent = "Não foi possível salvar. Talvez o armazenamento do navegador esteja cheio.";
+    botao.disabled = false;
+    botao.textContent = "Publicar opinião";
+    if (error) {
+        mensagem.textContent = "Não foi possível publicar. Tente novamente.";
+        console.error("Erro ao publicar comentário:", error);
+        return;
     }
+    campoTexto.value = "";
+    contador.textContent = "0/500";
+    mensagem.textContent = "Opinião publicada para todos os visitantes!";
+    await carregarComentarios();
 });
-mostrarComentarios();
+
+atualizarEstrelas();
+carregarAvaliacoes();
+carregarComentarios();
 </script>
 
 </body>
