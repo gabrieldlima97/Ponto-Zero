@@ -211,6 +211,7 @@ footer {
     © 2026 Ponto Zero. Todos os direitos reservados.
 </footer>
 
+<script src="catalogo-extra.js"></script>
 <script>
 const filmes = {
     interestelar: {
@@ -316,6 +317,7 @@ const filmes = {
         direcao: "Direção: Joseph Kosinski", trailer: "giXco2jaZ_4"
     }
 
+    ...Object.fromEntries(window.filmesExtras.map(([slug,titulo,ano,genero,duracao,diretor,sinopse])=>[slug,{titulo,ano,genero,duracao,poster:"https://placehold.co/500x750/17171e/e63946?text="+encodeURIComponent(titulo),sinopse,direcao:"Direção: "+diretor,trailer:""}]))
 };
 
 const parametros = new URLSearchParams(window.location.search);
@@ -339,8 +341,8 @@ if (!filme) {
          <span class="etiqueta">${filme.ano}</span>
          <span class="etiqueta">${filme.duracao}</span>`;
 
-    document.getElementById("trailer").src =
-        "https://www.youtube.com/embed/" + filme.trailer;
+    if (filme.trailer) document.getElementById("trailer").src = "https://www.youtube.com/embed/" + filme.trailer;
+    else document.querySelector(".trailer").parentElement.style.display = "none";
 }
 
 // Avaliações salvas neste navegador
