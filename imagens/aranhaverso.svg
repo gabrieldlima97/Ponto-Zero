@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#090d25"/><stop offset=".48" stop-color="#172e69"/><stop offset="1" stop-color="#8e102b"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#f52d59" stop-opacity=".9"/><stop offset="1" stop-color="#f52d59" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="600" height="900" fill="url(#bg)"/>
+<circle cx="310" cy="390" r="310" fill="url(#glow)"/>
+<g fill="none" stroke="#d9e6ff" stroke-opacity=".42" stroke-width="2">
+ <path d="M300 0V900M0 450H600M70 70L530 830M530 70L70 830M0 180L600 720M600 180L0 720"/>
+ <path d="M300 80L80 300L300 520L520 300Z M300 160L160 300L300 440L440 300Z M300 240L240 300L300 360L360 300Z"/>
+ <circle cx="300" cy="300" r="220"/><circle cx="300" cy="300" r="150"/><circle cx="300" cy="300" r="80"/>
+</g>
+<path d="M90 670 Q115 540 220 500 L260 420 L340 420 L380 500 Q485 540 510 670 L550 900H50Z" fill="#111827" stroke="#e9efff" stroke-width="5"/>
+<path d="M220 500L300 610L380 500L340 420H260Z" fill="#b91c3b" stroke="#f6d9e0" stroke-width="4"/>
+<path d="M252 452L300 500L348 452" fill="none" stroke="#f6d9e0" stroke-width="5"/>
+<path d="M250 525L300 610L350 525" fill="none" stroke="#f6d9e0" stroke-width="4"/>
+<text x="300" y="105" fill="#fff" font-family="Arial,sans-serif" font-size="28" font-weight="bold" text-anchor="middle" letter-spacing="8">PONTO ZERO APRESENTA</text>
+<text x="300" y="755" fill="#fff" font-family="Arial,sans-serif" font-size="42" font-weight="900" text-anchor="middle">HOMEM-ARANHA</text>
+<text x="300" y="805" fill="#fff" font-family="Arial,sans-serif" font-size="31" font-weight="bold" text-anchor="middle">ATRAVÉS DO ARANHAVERSO</text>
+<text x="300" y="855" fill="#f7cbd5" font-family="Arial,sans-serif" font-size="18" text-anchor="middle" letter-spacing="5">UMA AVENTURA PELO MULTIVERSO</text>
+</svg>
