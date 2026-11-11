@@ -346,7 +346,7 @@ const filmes = {
         poster: "https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg?v=20261111",
         sinopse: "Maverick treina uma nova geração de pilotos para uma missão perigosa enquanto enfrenta lembranças do passado.",
         direcao: "Direção: Joseph Kosinski", trailer: "giXco2jaZ_4"
-    }
+    },
 
     ...Object.fromEntries((window.filmesExtras || []).map(([slug,titulo,ano,genero,duracao,diretor,sinopse])=>[slug,{titulo,ano,genero,duracao,poster:posteresExtras[slug] || "https://placehold.co/500x750/17171e/e63946?text="+encodeURIComponent(titulo),sinopse,direcao:"Direção: "+diretor,trailer:""}]))
 };
