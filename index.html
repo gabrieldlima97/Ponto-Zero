@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponto Zero | Notícias e Cinema</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0b0f;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 8%;
+            background: #111116;
+            border-bottom: 1px solid #292930;
+        }
+
+        header h1 {
+            font-size: 28px;
+        }
+
+        header span {
+            color: #e63946;
+        }
+
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+
+        nav a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: #e63946;
+        }
+
+        .destaque {
+            padding: 110px 8%;
+            background: linear-gradient(90deg, #17121a, #0b0b0f);
+        }
+
+        .destaque h2 {
+            font-size: 48px;
+            max-width: 650px;
+            margin-bottom: 20px;
+        }
+
+        .destaque span {
+            color: #e63946;
+        }
+
+        .destaque p {
+            color: #aaaaaa;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .botao {
+            display: inline-block;
+            background: #e63946;
+            color: white;
+            padding: 14px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .conteudo {
+            padding: 55px 8%;
+        }
+
+        .conteudo h2 {
+            font-size: 28px;
+            margin-bottom: 25px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #17171e;
+            padding: 28px;
+            border: 1px solid #292930;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #e63946;
+        }
+
+        .card h3 {
+            margin-bottom: 12px;
+            color: #e63946;
+        }
+
+        .card p {
+            color: #aaaaaa;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #777777;
+            border-top: 1px solid #292930;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            nav {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .destaque h2 {
+                font-size: 34px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>PONTO <span>ZERO.</span></h1>
+
+        <nav>
+            <a href="#">Início</a>
+            <a href="#filmes">Filmes</a>
+            <a href="#noticias">Notícias</a>
+            <a href="#opiniao">Opiniões</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="destaque">
+            <h2>O mundo acontece. <span>Sua opinião importa.</span></h2>
+
+            <p>
+                Notícias, cinema e ideias que merecem ser discutidas.
+            </p>
+
+            <a href="#conteudo" class="botao">Explorar Ponto Zero</a>
+        </section>
+
+        <section class="conteudo" id="conteudo">
+            <h2>Explore o Ponto Zero</h2>
+
+            <div class="cards">
+
+                <article class="card" id="filmes">
+                    <h3>🎬 Filmes</h3>
+                    <p>
+                        Descubra filmes incríveis, recomendações
+                        e avaliações da comunidade.
+                    </p>
+                </article>
+
+                <article class="card" id="noticias">
+                    <h3>📰 Notícias</h3>
+                    <p>
+                        Acompanhe acontecimentos do Brasil
+                        e do mundo.
+                    </p>
+                </article>
+
+                <article class="card" id="opiniao">
+                    <h3>💬 Opiniões</h3>
+                    <p>
+                        Compartilhe ideias, debata assuntos
+                        e conheça diferentes pontos de vista.
+                    </p>
+                </article>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Ponto Zero. Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+</html>
