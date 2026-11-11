@@ -169,6 +169,7 @@ footer {
             <div id="etiquetas"></div>
             <p id="sinopse"></p>
             <p id="direcao" style="margin-top:15px"></p>
+            <a id="linkAssistir" class="botao" style="display:inline-block;text-decoration:none" href="onde-assistir.html">Onde assistir neste site →</a>
         </div>
     </section>
 
@@ -277,6 +278,44 @@ const filmes = {
         direcao: "Direção: Lana e Lilly Wachowski",
         trailer: "vKQi3bBA1y8"
     }
+
+    oppenheimer: {
+        titulo: "Oppenheimer", ano: 2023, genero: "Drama / Biografia", duracao: "180 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/ptpr0kGAckfQkJeJIt8st5dglvd.jpg",
+        sinopse: "A história do físico J. Robert Oppenheimer e de seu papel no desenvolvimento da primeira bomba atômica.",
+        direcao: "Direção: Christopher Nolan", trailer: "uYPbbksJxIg"
+    },
+    barbie: {
+        titulo: "Barbie", ano: 2023, genero: "Comédia / Fantasia", duracao: "114 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
+        sinopse: "Barbie deixa seu mundo cor-de-rosa e parte para o mundo real em uma jornada de descobertas.",
+        direcao: "Direção: Greta Gerwig", trailer: "pBk4NYhWNMM"
+    },
+    duna2: {
+        titulo: "Duna: Parte Dois", ano: 2024, genero: "Ficção científica", duracao: "166 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",
+        sinopse: "Paul Atreides se une a Chani e aos Fremen em uma jornada de vingança e destino no planeta Arrakis.",
+        direcao: "Direção: Denis Villeneuve", trailer: "Way9Dexny3w"
+    },
+    aranhaverso: {
+        titulo: "Homem-Aranha: Através do Aranhaverso", ano: 2023, genero: "Animação / Ação", duracao: "140 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj6m7v.jpg",
+        sinopse: "Miles Morales atravessa o multiverso e encontra uma equipe de pessoas-aranha diante de uma nova ameaça.",
+        direcao: "Direção: Joaquim Dos Santos, Kemp Powers e Justin K. Thompson", trailer: "shW9i6k8cB0"
+    },
+    whiplash: {
+        titulo: "Whiplash: Em Busca da Perfeição", ano: 2014, genero: "Drama / Música", duracao: "107 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg",
+        sinopse: "Um jovem baterista enfrenta um professor exigente e abusivo em busca da excelência musical.",
+        direcao: "Direção: Damien Chazelle", trailer: "7d_jQycdQGo"
+    },
+    topgun: {
+        titulo: "Top Gun: Maverick", ano: 2022, genero: "Ação / Drama", duracao: "131 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg",
+        sinopse: "Maverick treina uma nova geração de pilotos para uma missão perigosa enquanto enfrenta lembranças do passado.",
+        direcao: "Direção: Joseph Kosinski", trailer: "giXco2jaZ_4"
+    }
+
 };
 
 const parametros = new URLSearchParams(window.location.search);
@@ -293,6 +332,7 @@ if (!filme) {
     document.getElementById("poster").alt = filme.titulo;
     document.getElementById("sinopse").textContent = filme.sinopse;
     document.getElementById("direcao").textContent = filme.direcao;
+    document.getElementById("linkAssistir").href = "onde-assistir.html#" + slug;
 
     document.getElementById("etiquetas").innerHTML =
         `<span class="etiqueta">${filme.genero}</span>
