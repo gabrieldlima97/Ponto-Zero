@@ -790,5 +790,19 @@ botoes.forEach(botao=>botao.addEventListener("click",()=>{
   generoSelecionado=botao.dataset.genero;filtrarFilmes();
 }));
 </script>
+
+<script src="posteres.js?v=1"></script>
+<script>
+(function(){
+  const mapa = window.posterExtras || {};
+  document.querySelectorAll("#listaFilmes .card").forEach(card => {
+    const link = card.querySelector("a.detalhes");
+    const img = card.querySelector("img");
+    if (!link || !img) return;
+    const slug = new URL(link.href, location.href).searchParams.get("filme");
+    if (slug && mapa[slug]) img.src = mapa[slug];
+  });
+})();
+</script>
 </body>
 </html>
