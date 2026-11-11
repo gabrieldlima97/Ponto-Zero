@@ -149,6 +149,29 @@ footer {
     .poster { width: 100%; max-width: 280px; }
     h1 { font-size: 30px; }
 }
+
+/* Avaliações e comentários */
+.avaliacao,.comentarios{max-width:800px;margin-top:42px}
+.avaliacao p,.comentarios p{margin:8px 0 14px}
+.estrelas{display:flex;gap:5px;margin:12px 0}
+.estrelas button{font-size:38px;line-height:1;color:#555;padding:3px;transition:transform .15s,color .15s}
+.estrelas button:hover{transform:scale(1.15);color:#f5c542}
+.estrelas button.selecionada{color:#f5c542}
+.comentarios label{display:block;margin:15px 0 7px;color:#ddd;font-weight:bold}
+.campo-comentario{width:100%;background:#17171e;border:1px solid #333;border-radius:8px;padding:13px;color:white;font-size:15px}
+.comentarios textarea{display:block}
+.aviso-local{background:#17171e;border-left:3px solid #e63946;padding:12px;border-radius:4px;font-size:13px;color:#bbb}
+.rodape-form{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rodape-form small{color:#888}
+.mensagem-comentario{min-height:20px;color:#f5c542;font-size:14px}
+.titulo-lista{margin-top:28px;color:#fff;font-size:19px}
+.comentario{background:#17171e;border:1px solid #292930;padding:16px;border-radius:9px;margin-top:12px;overflow-wrap:anywhere}
+.comentario-cabecalho{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.comentario strong{color:#e63946}
+.comentario time{color:#888;font-size:12px}
+.comentario p{margin:0;color:#ddd;white-space:pre-wrap}
+@media(max-width:600px){.rodape-form .botao{width:100%}}
+
 </style>
 </head>
 
@@ -184,24 +207,29 @@ footer {
         </div>
     </section>
 
-    <section>
+    <section class="avaliacao">
         <h2>⭐ Avalie este filme</h2>
-        <p>Qual nota você daria para este filme?</p>
-        <div class="estrelas" id="estrelas">
-            <button data-nota="1">★</button>
-            <button data-nota="2">★</button>
-            <button data-nota="3">★</button>
-            <button data-nota="4">★</button>
-            <button data-nota="5">★</button>
+        <p>Escolha de 1 a 5 estrelas. Sua nota fica salva neste navegador.</p>
+        <div class="estrelas" id="estrelas" role="group" aria-label="Sua nota para o filme">
+            <button type="button" data-nota="1" aria-label="1 estrela">★</button>
+            <button type="button" data-nota="2" aria-label="2 estrelas">★</button>
+            <button type="button" data-nota="3" aria-label="3 estrelas">★</button>
+            <button type="button" data-nota="4" aria-label="4 estrelas">★</button>
+            <button type="button" data-nota="5" aria-label="5 estrelas">★</button>
         </div>
-        <p id="notaTexto">Você ainda não avaliou este filme.</p>
+        <p id="notaTexto" aria-live="polite">Você ainda não avaliou este filme.</p>
     </section>
 
     <section class="comentarios">
-        <h2>💬 Opiniões da comunidade</h2>
-        <textarea id="textoComentario"
-            placeholder="Conte o que você achou do filme..."></textarea>
-        <button class="botao" id="enviar">Publicar opinião</button>
+        <h2>💬 Deixe sua opinião</h2>
+        <p class="aviso-local">As opiniões são guardadas apenas neste navegador e não são compartilhadas com outros visitantes.</p>
+        <label for="nomeComentario">Seu nome (opcional)</label>
+        <input id="nomeComentario" class="campo-comentario" type="text" maxlength="30" placeholder="Como podemos te chamar?">
+        <label for="textoComentario">Seu comentário</label>
+        <textarea id="textoComentario" maxlength="500" placeholder="Conte o que você achou do filme..." required></textarea>
+        <div class="rodape-form"><small id="contadorComentario">0/500</small><button class="botao" id="enviar" type="button">Publicar opinião</button></div>
+        <p id="mensagemComentario" class="mensagem-comentario" role="status" aria-live="polite"></p>
+        <h3 class="titulo-lista">Opiniões salvas neste navegador</h3>
         <div id="listaComentarios"></div>
     </section>
 
@@ -348,76 +376,111 @@ if (!filme) {
     else document.querySelector(".trailer").parentElement.style.display = "none";
 }
 
-// Avaliações salvas neste navegador
+// Avaliações e comentários locais por filme.
 const chaveNota = "pz-nota-" + slug;
-let notaAtual = Number(localStorage.getItem(chaveNota)) || 0;
+const chaveComentarios = "pz-comentarios-" + slug;
+const lerJSON = (chave, padrao) => {
+    try {
+        const valor = JSON.parse(localStorage.getItem(chave) || "null");
+        return valor === null ? padrao : valor;
+    } catch (erro) {
+        return padrao;
+    }
+};
+let notaAtual = Number(lerJSON(chaveNota, 0)) || 0;
+let comentarios = lerJSON(chaveComentarios, []);
+if (!Array.isArray(comentarios)) comentarios = [];
+// Mantém compatibilidade com comentários antigos, que eram apenas textos.
+comentarios = comentarios.map(item => typeof item === "string"
+    ? { nome: "Visitante", texto: item, data: "" }
+    : item
+);
 
 const botoesEstrelas = document.querySelectorAll(".estrelas button");
-
 function atualizarEstrelas() {
     botoesEstrelas.forEach(botao => {
-        botao.classList.toggle(
-            "selecionada",
-            Number(botao.dataset.nota) <= notaAtual
-        );
+        const selecionada = Number(botao.dataset.nota) <= notaAtual;
+        botao.classList.toggle("selecionada", selecionada);
+        botao.setAttribute("aria-pressed", String(Number(botao.dataset.nota) === notaAtual));
     });
-
-    document.getElementById("notaTexto").textContent =
-        notaAtual ? "Sua nota: " + notaAtual + " de 5 estrelas." :
-        "Você ainda não avaliou este filme.";
+    document.getElementById("notaTexto").textContent = notaAtual
+        ? "Sua avaliação: " + notaAtual + " de 5 estrelas. Você pode alterá-la clicando em outra estrela."
+        : "Você ainda não avaliou este filme.";
 }
-
 botoesEstrelas.forEach(botao => {
     botao.addEventListener("click", () => {
         notaAtual = Number(botao.dataset.nota);
-        localStorage.setItem(chaveNota, notaAtual);
-        atualizarEstrelas();
+        try {
+            localStorage.setItem(chaveNota, String(notaAtual));
+            atualizarEstrelas();
+        } catch (erro) {
+            document.getElementById("notaTexto").textContent = "Não foi possível salvar a nota neste navegador.";
+        }
     });
 });
-
 atualizarEstrelas();
 
-// Comentários salvos neste navegador
-const chaveComentarios = "pz-comentarios-" + slug;
-let comentarios = JSON.parse(
-    localStorage.getItem(chaveComentarios) || "[]"
-);
-
+const campoNome = document.getElementById("nomeComentario");
+const campoTexto = document.getElementById("textoComentario");
+const contador = document.getElementById("contadorComentario");
+const mensagem = document.getElementById("mensagemComentario");
 function mostrarComentarios() {
     const lista = document.getElementById("listaComentarios");
-    lista.innerHTML = "";
-
-    comentarios.forEach(comentario => {
-        const card = document.createElement("div");
+    lista.replaceChildren();
+    if (!comentarios.length) {
+        const vazio = document.createElement("p");
+        vazio.className = "vazio-comentarios";
+        vazio.textContent = "Ainda não há opiniões salvas neste navegador.";
+        lista.appendChild(vazio);
+        return;
+    }
+    comentarios.slice().reverse().forEach(comentario => {
+        const card = document.createElement("article");
         card.className = "comentario";
-
+        const cabecalho = document.createElement("div");
+        cabecalho.className = "comentario-cabecalho";
         const nome = document.createElement("strong");
-        nome.textContent = "Visitante";
-
+        nome.textContent = comentario.nome || "Visitante";
+        cabecalho.appendChild(nome);
+        if (comentario.data) {
+            const data = document.createElement("time");
+            data.textContent = comentario.data;
+            cabecalho.appendChild(data);
+        }
         const texto = document.createElement("p");
-        texto.textContent = comentario;
-
-        card.append(nome, texto);
+        texto.textContent = comentario.texto || "";
+        card.append(cabecalho, texto);
         lista.appendChild(card);
     });
 }
-
+campoTexto.addEventListener("input", () => {
+    contador.textContent = campoTexto.value.length + "/500";
+});
 document.getElementById("enviar").addEventListener("click", () => {
-    const campo = document.getElementById("textoComentario");
-    const texto = campo.value.trim();
-
+    const texto = campoTexto.value.trim();
+    const nome = campoNome.value.trim().slice(0, 30) || "Visitante";
+    mensagem.textContent = "";
     if (!texto) {
-        alert("Escreva sua opinião antes de publicar!");
+        mensagem.textContent = "Escreva sua opinião antes de publicar.";
+        campoTexto.focus();
         return;
     }
-
-    comentarios.push(texto);
-    localStorage.setItem(chaveComentarios, JSON.stringify(comentarios));
-
-    campo.value = "";
-    mostrarComentarios();
+    comentarios.push({
+        nome,
+        texto: texto.slice(0, 500),
+        data: new Date().toLocaleDateString("pt-BR")
+    });
+    try {
+        localStorage.setItem(chaveComentarios, JSON.stringify(comentarios));
+        campoTexto.value = "";
+        contador.textContent = "0/500";
+        mensagem.textContent = "Opinião salva neste navegador!";
+        mostrarComentarios();
+    } catch (erro) {
+        comentarios.pop();
+        mensagem.textContent = "Não foi possível salvar. Talvez o armazenamento do navegador esteja cheio.";
+    }
 });
-
 mostrarComentarios();
 </script>
 
