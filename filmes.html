@@ -87,11 +87,6 @@ nav a:hover {
     color: white;
     font-size: 16px;
     margin-bottom: 20px;
-    outline: none;
-}
-
-.busca:focus {
-    border-color: #e63946;
 }
 
 .filtros {
@@ -123,11 +118,15 @@ nav a:hover {
 }
 
 .card {
+    display: block;
     background: #17171e;
     border: 1px solid #292930;
     border-radius: 10px;
     overflow: hidden;
     transition: 0.3s;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .card:hover {
@@ -161,19 +160,19 @@ nav a:hover {
     font-weight: bold;
 }
 
+.vazio {
+    color: #aaa;
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 30px;
+}
+
 footer {
     text-align: center;
     padding: 30px;
     color: #777;
     border-top: 1px solid #292930;
     margin-top: 50px;
-}
-
-.vazio {
-    color: #aaa;
-    text-align: center;
-    grid-column: 1 / -1;
-    padding: 30px;
 }
 
 @media (max-width: 600px) {
@@ -233,59 +232,65 @@ footer {
 
     <div class="filmes" id="listaFilmes">
 
-        <article class="card" data-genero="ficcao">
-            <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" alt="Pôster de Interestelar">
+        <a href="detalhes.html?filme=interestelar"
+           class="card" data-genero="ficcao">
+            <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" alt="Interestelar">
             <div class="info">
                 <h3>Interestelar</h3>
                 <p class="genero">Ficção científica • 2014</p>
                 <p class="nota">★ Destaque do catálogo</p>
             </div>
-        </article>
+        </a>
 
-        <article class="card" data-genero="acao">
-            <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg" alt="Pôster de Batman: O Cavaleiro das Trevas">
+        <a href="detalhes.html?filme=batman"
+           class="card" data-genero="acao">
+            <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg" alt="Batman">
             <div class="info">
                 <h3>Batman: O Cavaleiro das Trevas</h3>
                 <p class="genero">Ação • 2008</p>
                 <p class="nota">★ Destaque do catálogo</p>
             </div>
-        </article>
+        </a>
 
-        <article class="card" data-genero="ficcao">
-            <img src="https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg" alt="Pôster de A Origem">
+        <a href="detalhes.html?filme=origem"
+           class="card" data-genero="ficcao">
+            <img src="https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg" alt="A Origem">
             <div class="info">
                 <h3>A Origem</h3>
                 <p class="genero">Ficção científica • 2010</p>
                 <p class="nota">★ Destaque do catálogo</p>
             </div>
-        </article>
+        </a>
 
-        <article class="card" data-genero="suspense">
-            <img src="https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg" alt="Pôster de Parasita">
+        <a href="detalhes.html?filme=parasita"
+           class="card" data-genero="suspense">
+            <img src="https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg" alt="Parasita">
             <div class="info">
                 <h3>Parasita</h3>
                 <p class="genero">Suspense • 2019</p>
                 <p class="nota">★ Destaque do catálogo</p>
             </div>
-        </article>
+        </a>
 
-        <article class="card" data-genero="drama">
-            <img src="https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg" alt="Pôster de Um Sonho de Liberdade">
+        <a href="detalhes.html?filme=liberdade"
+           class="card" data-genero="drama">
+            <img src="https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg" alt="Um Sonho de Liberdade">
             <div class="info">
                 <h3>Um Sonho de Liberdade</h3>
                 <p class="genero">Drama • 1994</p>
                 <p class="nota">★ Destaque do catálogo</p>
             </div>
-        </article>
+        </a>
 
-        <article class="card" data-genero="acao">
-            <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="Pôster de Matrix">
+        <a href="detalhes.html?filme=matrix"
+           class="card" data-genero="acao">
+            <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="Matrix">
             <div class="info">
                 <h3>Matrix</h3>
                 <p class="genero">Ação • 1999</p>
                 <p class="nota">★ Destaque do catálogo</p>
             </div>
-        </article>
+        </a>
 
     </div>
 
@@ -311,12 +316,10 @@ function filtrarFilmes() {
         const nome = card.querySelector("h3").textContent.toLowerCase();
         const genero = card.dataset.genero;
 
-        const correspondeNome = nome.includes(pesquisa);
-        const correspondeGenero =
-            generoSelecionado === "todos" ||
-            genero === generoSelecionado;
-
-        const mostrar = correspondeNome && correspondeGenero;
+        const mostrar =
+            nome.includes(pesquisa) &&
+            (generoSelecionado === "todos" ||
+             genero === generoSelecionado);
 
         card.style.display = mostrar ? "block" : "none";
 
@@ -350,28 +353,6 @@ botoes.forEach(botao => {
         filtrarFilmes();
     });
 });
-const linksFilmes = {
-    "Interestelar": "interestelar",
-    "Batman: O Cavaleiro das Trevas": "batman",
-    "A Origem": "origem",
-    "Parasita": "parasita",
-    "Um Sonho de Liberdade": "liberdade",
-    "Matrix": "matrix"
-};
-
-document.querySelectorAll(".card").forEach(card => {
-    card.style.cursor = "pointer";
-
-    card.addEventListener("click", () => {
-        const titulo = card.querySelector("h3").textContent;
-        const slug = linksFilmes[titulo];
-
-        if (slug) {
-            window.location.href = "detalhes.html?filme=" + slug;
-        }
-    });
-});
-
 </script>
 
 </body>
