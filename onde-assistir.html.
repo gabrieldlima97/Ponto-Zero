@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onde Assistir | Ponto Zero</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #101010;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #181818;
+      padding: 22px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      border-bottom: 2px solid #e50914;
+    }
+
+    .logo {
+      color: #e50914;
+      font-size: 27px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 15px;
+    }
+
+    nav a:hover {
+      color: #e50914;
+    }
+
+    .principal {
+      text-align: center;
+      padding: 55px 20px 35px;
+    }
+
+    .principal h1 {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .principal h1 span {
+      color: #e50914;
+    }
+
+    .principal p {
+      color: #aaa;
+      font-size: 16px;
+    }
+
+    .filmes {
+      width: 85%;
+      max-width: 1100px;
+      margin: 20px auto 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: #e50914;
+    }
+
+    .card h2 {
+      font-size: 21px;
+      margin-bottom: 7px;
+    }
+
+    .ano {
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: #ddd;
+    }
+
+    .plataformas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .plataforma {
+      display: inline-block;
+      padding: 10px 13px;
+      border-radius: 7px;
+      background: #292929;
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      border: 1px solid #444;
+      transition: 0.2s;
+    }
+
+    .plataforma:hover {
+      background: #e50914;
+      border-color: #e50914;
+    }
+
+    .aviso {
+      width: 85%;
+      max-width: 1100px;
+      margin: 0 auto 50px;
+      padding: 18px;
+      border-left: 4px solid #e50914;
+      background: #1c1c1c;
+      color: #aaa;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    footer {
+      background: #181818;
+      text-align: center;
+      padding: 25px;
+      color: #777;
+      border-top: 1px solid #333;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        justify-content: center;
+        text-align: center;
+      }
+
+      nav a {
+        margin: 0 8px;
+      }
+
+      .principal h1 {
+        font-size: 28px;
+      }
+
+      .filmes {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a href="index.html" class="logo">PONTO ZERO</a>
+
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="filmes.html">Filmes</a>
+      <a href="onde-assistir.html">Onde assistir</a>
+    </nav>
+  </header>
+
+  <section class="principal">
+    <h1>Onde <span>Assistir?</span></h1>
+    <p>Encontre seus filmes favoritos nas plataformas de streaming.</p>
+  </section>
+
+  <main class="filmes">
+
+    <article class="card">
+      <h2>Interestelar</h2>
+      <p class="ano">2014 • Ficção científica</p>
+      <h3>Disponível para assistir em:</h3>
+      <div class="plataformas">
+        <a class="plataforma" href="https://www.primevideo.com/" target="_blank">Prime Video</a>
+        <a class="plataforma" href="https://www.hbomax.com/br/pt" target="_blank">HBO Max</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Batman: O Cavaleiro das Trevas</h2>
+      <p class="ano">2008 • Ação</p>
+      <h3>Disponível para assistir em:</h3>
+      <div class="plataformas">
+        <a class="plataforma" href="https://www.primevideo.com/" target="_blank">Prime Video</a>
+        <a class="plataforma" href="https://www.hbomax.com/br/pt" target="_blank">HBO Max</a>
+        <a class="plataforma" href="https://www.universalplus.com/" target="_blank">Universal+</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>A Origem</h2>
+      <p class="ano">2010 • Ficção científica</p>
+      <h3>Disponível para assistir em:</h3>
+      <div class="plataformas">
+        <a class="plataforma" href="https://www.hbomax.com/br/pt" target="_blank">HBO Max</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Parasita</h2>
+      <p class="ano">2019 • Suspense</p>
+      <h3>Disponível para assistir em:</h3>
+      <div class="plataformas">
+        <a class="plataforma" href="https://www.netflix.com/br/" target="_blank">Netflix</a>
+        <a class="plataforma" href="https://www.primevideo.com/" target="_blank">Prime Video</a>
+        <a class="plataforma" href="https://www.telecine.com.br/" target="_blank">Telecine</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Um Sonho de Liberdade</h2>
+      <p class="ano">1994 • Drama</p>
+      <h3>Disponível para assistir em:</h3>
+      <div class="plataformas">
+        <a class="plataforma" href="https://www.netflix.com/br/" target="_blank">Netflix</a>
+        <a class="plataforma" href="https://www.hbomax.com/br/pt" target="_blank">HBO Max</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Matrix</h2>
+      <p class="ano">1999 • Ficção científica</p>
+      <h3>Disponível para assistir em:</h3>
+      <div class="plataformas">
+        <a class="plataforma" href="https://www.hbomax.com/br/pt" target="_blank">HBO Max</a>
+        <a class="plataforma" href="https://globoplay.globo.com/" target="_blank">Globoplay</a>
+        <a class="plataforma" href="https://www.telecine.com.br/" target="_blank">Telecine</a>
+      </div>
+    </article>
+
+  </main>
+
+  <div class="aviso">
+    <strong>Importante:</strong> as opções de streaming podem mudar com o tempo.
+    Alguns filmes podem estar disponíveis por meio de canais adicionais ou exigir
+    aluguel ou compra. Confira a disponibilidade diretamente na plataforma.
+  </div>
+
+  <footer>
+    © 2026 Ponto Zero — Sua opinião começa aqui.
+  </footer>
+
+</body>
+</html>
