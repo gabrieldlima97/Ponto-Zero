@@ -1,549 +1,134 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Filmes | Ponto Zero</title>
-
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background: #0b0b0f;
-    color: white;
-    font-family: Arial, sans-serif;
-}
-
-header {
-    background: #111116;
-    padding: 24px 8%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #292930;
-}
-
-.logo {
-    font-size: 27px;
-}
-
-.logo span {
-    color: #e63946;
-}
-
-nav {
-    display: flex;
-    gap: 22px;
-}
-
-nav a {
-    color: #ccc;
-    text-decoration: none;
-}
-
-nav a:hover {
-    color: #e63946;
-}
-
-.hero {
-    padding: 75px 8%;
-    background: linear-gradient(90deg, #24131a, #0b0b0f);
-}
-
-.hero h2 {
-    font-size: 42px;
-    margin-bottom: 15px;
-}
-
-.hero h2 span {
-    color: #e63946;
-}
-
-.hero p {
-    color: #aaa;
-    font-size: 17px;
-}
-
-.catalogo {
-    padding: 45px 8%;
-}
-
-.catalogo h2 {
-    margin-bottom: 25px;
-    font-size: 28px;
-}
-
-.busca {
-    width: 100%;
-    padding: 15px;
-    background: #17171e;
-    border: 1px solid #333;
-    border-radius: 8px;
-    color: white;
-    font-size: 16px;
-    margin-bottom: 20px;
-}
-
-.filtros {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
-}
-
-.filtros button {
-    background: #191920;
-    color: white;
-    border: 1px solid #333;
-    padding: 10px 17px;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-.filtros button.ativo,
-.filtros button:hover {
-    background: #e63946;
-    border-color: #e63946;
-}
-
-.filmes {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 25px;
-}
-
-.card {
-    background: #17171e;
-    border: 1px solid #292930;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    border-color: #e63946;
-}
-
-.card img {
-    width: 100%;
-    height: 310px;
-    object-fit: cover;
-    display: block;
-}
-
-.info {
-    padding: 17px;
-}
-
-.info h3 {
-    margin-bottom: 10px;
-    font-size: 18px;
-}
-
-.genero {
-    color: #aaa;
-    font-size: 13px;
-    margin-bottom: 17px;
-}
-
-.detalhes {
-    display: inline-block;
-    color: white;
-    background: #292930;
-    padding: 9px 13px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 13px;
-    margin-bottom: 20px;
-}
-
-.detalhes:hover {
-    background: #e63946;
-}
-
-.streaming {
-    border-top: 1px solid #333;
-    padding-top: 15px;
-}
-
-.streaming h4 {
-    color: #e63946;
-    margin-bottom: 12px;
-    font-size: 15px;
-}
-
-.plataformas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 13px;
-}
-
-.plataforma {
-    background: #292930;
-    color: #eee;
-    border: 1px solid #41414b;
-    border-radius: 5px;
-    padding: 7px 9px;
-    font-size: 12px;
-}
-
-.assistir {
-    display: block;
-    text-align: center;
-    background: #e63946;
-    color: white;
-    text-decoration: none;
-    padding: 11px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
-    transition: 0.2s;
-}
-
-.assistir:hover {
-    background: #bd2633;
-}
-
-.aviso {
-    color: #999;
-    font-size: 12px;
-    margin-top: 12px;
-    line-height: 1.5;
-}
-
-.vazio {
-    color: #aaa;
-    text-align: center;
-    grid-column: 1 / -1;
-    padding: 30px;
-}
-
-footer {
-    text-align: center;
-    padding: 30px;
-    color: #777;
-    border-top: 1px solid #292930;
-    margin-top: 50px;
-}
-
-@media(max-width: 600px) {
-    header {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    nav {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .hero h2 {
-        font-size: 32px;
-    }
-}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0b0b0f;color:#fff;font-family:Arial,sans-serif}
+header{background:#111116;padding:24px 8%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;border-bottom:1px solid #292930}
+.logo{font-size:27px;font-weight:bold}.logo span{color:#e63946}
+nav{display:flex;gap:20px;flex-wrap:wrap}
+nav a{color:#ccc;text-decoration:none}nav a:hover{color:#e63946}
+.hero{padding:75px 8%;background:linear-gradient(90deg,#24131a,#0b0b0f)}
+.hero h2{font-size:42px;margin-bottom:15px}.hero h2 span{color:#e63946}
+.hero p{color:#aaa;font-size:17px}
+.catalogo{padding:45px 8%}
+.catalogo h2{margin-bottom:25px;font-size:28px}
+.busca{width:100%;padding:15px;background:#17171e;border:1px solid #333;border-radius:8px;color:white;font-size:16px;margin-bottom:20px}
+.filtros{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.filtros button{background:#191920;color:white;border:1px solid #333;padding:10px 17px;border-radius:20px;cursor:pointer}
+.filtros button.ativo,.filtros button:hover{background:#e63946;border-color:#e63946}
+.filmes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:25px}
+.card{background:#17171e;border:1px solid #292930;border-radius:10px;overflow:hidden;transition:.3s}
+.card:hover{transform:translateY(-5px);border-color:#e63946}
+.card img{width:100%;height:310px;object-fit:cover;display:block}
+.info{padding:17px}.info h3{margin-bottom:10px;font-size:18px}
+.genero{color:#aaa;font-size:13px;margin-bottom:17px}
+.detalhes,.assistir{display:inline-block;color:white;padding:10px 13px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:bold}
+.detalhes{background:#292930;margin-bottom:16px}.detalhes:hover{background:#444}
+.assistir{display:block;text-align:center;background:#e63946;margin-top:4px}.assistir:hover{background:#bd2633}
+.aviso{color:#999;font-size:12px;margin-top:20px;line-height:1.5}
+.vazio{color:#aaa;text-align:center;grid-column:1/-1;padding:30px}
+footer{text-align:center;padding:30px;color:#777;border-top:1px solid #292930;margin-top:50px}
+@media(max-width:600px){header{flex-direction:column}nav{justify-content:center}.hero h2{font-size:32px}}
 </style>
 </head>
-
 <body>
-
 <header>
-    <h1 class="logo">PONTO <span>ZERO.</span></h1>
-
-    <nav>
-        <a href="index.html">Início</a>
-        <a href="filmes.html">Filmes</a>
-        <a href="index.html#noticias">Notícias</a>
-        <a href="index.html#opiniao">Opiniões</a>
-    </nav>
+  <h1 class="logo">PONTO <span>ZERO.</span></h1>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="onde-assistir.html">Onde assistir</a>
+    <a href="index.html#noticias">Notícias</a>
+    <a href="index.html#opiniao">Opiniões</a>
+  </nav>
 </header>
-
 <section class="hero">
-    <h2>Seu próximo filme <span>favorito está aqui.</span></h2>
-    <p>Descubra histórias, explore gêneros e encontre onde assistir.</p>
+  <h2>Seu próximo filme <span>favorito está aqui.</span></h2>
+  <p>Descubra histórias, explore gêneros e encontre onde assistir.</p>
 </section>
-
 <main class="catalogo">
-
-    <h2>🎬 Explore os filmes</h2>
-
-    <input
-        type="text"
-        class="busca"
-        id="busca"
-        placeholder="🔎 Pesquise pelo nome do filme..."
-    >
-
-    <div class="filtros">
-        <button class="ativo" data-genero="todos">Todos</button>
-        <button data-genero="ficcao">Ficção científica</button>
-        <button data-genero="acao">Ação</button>
-        <button data-genero="drama">Drama</button>
-        <button data-genero="suspense">Suspense</button>
-    </div>
-
-    <div class="filmes" id="listaFilmes">
-
-        <!-- INTERESTELAR -->
-        <article class="card" data-genero="ficcao">
-            <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
-                 alt="Interestelar">
-
-            <div class="info">
-                <h3>Interestelar</h3>
-                <p class="genero">Ficção científica • 2014</p>
-
-                <a class="detalhes"
-                   href="detalhes.html?filme=interestelar">
-                   Ver detalhes →
-                </a>
-
-                <div class="streaming">
-                    <h4>▶ Onde assistir</h4>
-
-                    <div class="plataformas">
-                        <span class="plataforma">HBO Max</span>
-                        <span class="plataforma">Prime Video</span>
-                    </div>
-
-                    <a class="assistir"
-                       href="https://www.justwatch.com/br/filme/interestelar"
-                       target="_blank" rel="noopener">
-                       Ver opções de streaming
-                    </a>
-                </div>
-            </div>
-        </article>
-
-        <!-- BATMAN -->
-        <article class="card" data-genero="acao">
-            <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"
-                 alt="Batman O Cavaleiro das Trevas">
-
-            <div class="info">
-                <h3>Batman: O Cavaleiro das Trevas</h3>
-                <p class="genero">Ação • 2008</p>
-
-                <a class="detalhes"
-                   href="detalhes.html?filme=batman">
-                   Ver detalhes →
-                </a>
-
-                <div class="streaming">
-                    <h4>▶ Onde assistir</h4>
-
-                    <div class="plataformas">
-                        <span class="plataforma">HBO Max</span>
-                        <span class="plataforma">Prime Video</span>
-                    </div>
-
-                    <a class="assistir"
-                       href="https://www.justwatch.com/br/filme/o-cavaleiro-das-trevas"
-                       target="_blank" rel="noopener">
-                       Ver opções de streaming
-                    </a>
-                </div>
-            </div>
-        </article>
-
-        <!-- A ORIGEM -->
-        <article class="card" data-genero="ficcao">
-            <img src="https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg"
-                 alt="A Origem">
-
-            <div class="info">
-                <h3>A Origem</h3>
-                <p class="genero">Ficção científica • 2010</p>
-
-                <a class="detalhes"
-                   href="detalhes.html?filme=origem">
-                   Ver detalhes →
-                </a>
-
-                <div class="streaming">
-                    <h4>▶ Onde assistir</h4>
-
-                    <div class="plataformas">
-                        <span class="plataforma">HBO Max</span>
-                    </div>
-
-                    <a class="assistir"
-                       href="https://www.justwatch.com/br/filme/a-origem"
-                       target="_blank" rel="noopener">
-                       Ver opções de streaming
-                    </a>
-                </div>
-            </div>
-        </article>
-
-        <!-- PARASITA -->
-        <article class="card" data-genero="suspense">
-            <img src="https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
-                 alt="Parasita">
-
-            <div class="info">
-                <h3>Parasita</h3>
-                <p class="genero">Suspense • 2019</p>
-
-                <a class="detalhes"
-                   href="detalhes.html?filme=parasita">
-                   Ver detalhes →
-                </a>
-
-                <div class="streaming">
-                    <h4>▶ Onde assistir</h4>
-
-                    <div class="plataformas">
-                        <span class="plataforma">Netflix</span>
-                        <span class="plataforma">Prime Video</span>
-                        <span class="plataforma">Telecine</span>
-                    </div>
-
-                    <a class="assistir"
-                       href="https://www.justwatch.com/br/filme/parasitas"
-                       target="_blank" rel="noopener">
-                       Ver opções de streaming
-                    </a>
-                </div>
-            </div>
-        </article>
-
-        <!-- UM SONHO DE LIBERDADE -->
-        <article class="card" data-genero="drama">
-            <img src="https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg"
-                 alt="Um Sonho de Liberdade">
-
-            <div class="info">
-                <h3>Um Sonho de Liberdade</h3>
-                <p class="genero">Drama • 1994</p>
-
-                <a class="detalhes"
-                   href="detalhes.html?filme=liberdade">
-                   Ver detalhes →
-                </a>
-
-                <div class="streaming">
-                    <h4>▶ Onde assistir</h4>
-
-                    <div class="plataformas">
-                        <span class="plataforma">Netflix</span>
-                        <span class="plataforma">HBO Max</span>
-                    </div>
-
-                    <a class="assistir"
-                       href="https://www.justwatch.com/br/filme/the-shawshank-redemption"
-                       target="_blank" rel="noopener">
-                       Ver opções de streaming
-                    </a>
-                </div>
-            </div>
-        </article>
-
-        <!-- MATRIX -->
-        <article class="card" data-genero="acao">
-            <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"
-                 alt="Matrix">
-
-            <div class="info">
-                <h3>Matrix</h3>
-                <p class="genero">Ação • 1999</p>
-
-                <a class="detalhes"
-                   href="detalhes.html?filme=matrix">
-                   Ver detalhes →
-                </a>
-
-                <div class="streaming">
-                    <h4>▶ Onde assistir</h4>
-
-                    <div class="plataformas">
-                        <span class="plataforma">HBO Max</span>
-                        <span class="plataforma">Globoplay</span>
-                    </div>
-
-                    <a class="assistir"
-                       href="https://www.justwatch.com/br/filme/matrix"
-                       target="_blank" rel="noopener">
-                       Ver opções de streaming
-                    </a>
-                </div>
-            </div>
-        </article>
-
-    </div>
-
-    <p class="aviso">
-        Disponibilidade consultada em novembro de 2026.
-        Os catálogos podem mudar. Consulte as opções atualizadas
-        antes de assinar ou alugar.
-    </p>
-
+  <h2>🎬 Explore os filmes</h2>
+  <input type="text" class="busca" id="busca" placeholder="🔎 Pesquise pelo nome do filme...">
+  <div class="filtros">
+    <button class="ativo" data-genero="todos">Todos</button>
+    <button data-genero="ficcao">Ficção científica</button>
+    <button data-genero="acao">Ação</button>
+    <button data-genero="drama">Drama</button>
+    <button data-genero="suspense">Suspense</button>
+  </div>
+  <div class="filmes" id="listaFilmes">
+    <article class="card" data-genero="ficcao">
+      <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" alt="Interestelar">
+      <div class="info"><h3>Interestelar</h3><p class="genero">Ficção científica • 2014</p>
+        <a class="detalhes" href="detalhes.html?filme=interestelar">Ver detalhes →</a>
+        <a class="assistir" href="onde-assistir.html#interestelar">Onde assistir neste site →</a>
+      </div>
+    </article>
+    <article class="card" data-genero="acao">
+      <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg" alt="Batman O Cavaleiro das Trevas">
+      <div class="info"><h3>Batman: O Cavaleiro das Trevas</h3><p class="genero">Ação • 2008</p>
+        <a class="detalhes" href="detalhes.html?filme=batman">Ver detalhes →</a>
+        <a class="assistir" href="onde-assistir.html#batman">Onde assistir neste site →</a>
+      </div>
+    </article>
+    <article class="card" data-genero="ficcao">
+      <img src="https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg" alt="A Origem">
+      <div class="info"><h3>A Origem</h3><p class="genero">Ficção científica • 2010</p>
+        <a class="detalhes" href="detalhes.html?filme=origem">Ver detalhes →</a>
+        <a class="assistir" href="onde-assistir.html#origem">Onde assistir neste site →</a>
+      </div>
+    </article>
+    <article class="card" data-genero="suspense">
+      <img src="https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg" alt="Parasita">
+      <div class="info"><h3>Parasita</h3><p class="genero">Suspense • 2019</p>
+        <a class="detalhes" href="detalhes.html?filme=parasita">Ver detalhes →</a>
+        <a class="assistir" href="onde-assistir.html#parasita">Onde assistir neste site →</a>
+      </div>
+    </article>
+    <article class="card" data-genero="drama">
+      <img src="https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg" alt="Um Sonho de Liberdade">
+      <div class="info"><h3>Um Sonho de Liberdade</h3><p class="genero">Drama • 1994</p>
+        <a class="detalhes" href="detalhes.html?filme=liberdade">Ver detalhes →</a>
+        <a class="assistir" href="onde-assistir.html#liberdade">Onde assistir neste site →</a>
+      </div>
+    </article>
+    <article class="card" data-genero="acao">
+      <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="Matrix">
+      <div class="info"><h3>Matrix</h3><p class="genero">Ação • 1999</p>
+        <a class="detalhes" href="detalhes.html?filme=matrix">Ver detalhes →</a>
+        <a class="assistir" href="onde-assistir.html#matrix">Onde assistir neste site →</a>
+      </div>
+    </article>
+  </div>
+  <p class="aviso">A disponibilidade dos filmes muda conforme o país e a data. Confira a plataforma antes de assinar, alugar ou comprar.</p>
 </main>
-
-<footer>
-    <p>© 2026 Ponto Zero. Todos os direitos reservados.</p>
-</footer>
-
+<footer><p>© 2026 Ponto Zero. Todos os direitos reservados.</p></footer>
 <script>
-const busca = document.getElementById("busca");
-const botoes = document.querySelectorAll(".filtros button");
-const cards = document.querySelectorAll(".card");
-const lista = document.getElementById("listaFilmes");
-
-let generoSelecionado = "todos";
-
-function filtrarFilmes() {
-    const pesquisa = busca.value.toLowerCase();
-    let encontrados = 0;
-
-    cards.forEach(card => {
-        const nome = card.querySelector("h3").textContent.toLowerCase();
-        const genero = card.dataset.genero;
-
-        const mostrar =
-            nome.includes(pesquisa) &&
-            (generoSelecionado === "todos" ||
-             genero === generoSelecionado);
-
-        card.style.display = mostrar ? "block" : "none";
-
-        if (mostrar) encontrados++;
-    });
-
-    let mensagem = document.getElementById("semResultados");
-
-    if (encontrados === 0) {
-        if (!mensagem) {
-            mensagem = document.createElement("p");
-            mensagem.id = "semResultados";
-            mensagem.className = "vazio";
-            mensagem.textContent = "Nenhum filme encontrado.";
-            lista.appendChild(mensagem);
-        }
-    } else if (mensagem) {
-        mensagem.remove();
-    }
+const busca=document.getElementById("busca");
+const botoes=document.querySelectorAll(".filtros button");
+const cards=document.querySelectorAll(".card");
+const lista=document.getElementById("listaFilmes");
+let generoSelecionado="todos";
+function filtrarFilmes(){
+  const pesquisa=busca.value.toLowerCase();let encontrados=0;
+  cards.forEach(card=>{
+    const nome=card.querySelector("h3").textContent.toLowerCase();
+    const mostrar=nome.includes(pesquisa)&&(generoSelecionado==="todos"||card.dataset.genero===generoSelecionado);
+    card.style.display=mostrar?"block":"none";if(mostrar)encontrados++;
+  });
+  let mensagem=document.getElementById("semResultados");
+  if(encontrados===0&&!mensagem){mensagem=document.createElement("p");mensagem.id="semResultados";mensagem.className="vazio";mensagem.textContent="Nenhum filme encontrado.";lista.appendChild(mensagem);}
+  else if(encontrados>0&&mensagem)mensagem.remove();
 }
-
-busca.addEventListener("input", filtrarFilmes);
-
-botoes.forEach(botao => {
-    botao.addEventListener("click", () => {
-        botoes.forEach(b => b.classList.remove("ativo"));
-
-        botao.classList.add("ativo");
-        generoSelecionado = botao.dataset.genero;
-
-        filtrarFilmes();
-    });
-});
+busca.addEventListener("input",filtrarFilmes);
+botoes.forEach(botao=>botao.addEventListener("click",()=>{
+  botoes.forEach(b=>b.classList.remove("ativo"));botao.classList.add("ativo");
+  generoSelecionado=botao.dataset.genero;filtrarFilmes();
+}));
 </script>
-
 </body>
 </html>
