@@ -1,0 +1,380 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filme | Ponto Zero</title>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: #0b0b0f;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    padding: 22px 8%;
+    background: #111116;
+    border-bottom: 1px solid #292930;
+}
+
+.logo { font-size: 27px; }
+.logo span { color: #e63946; }
+
+header a {
+    color: #ccc;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 12px;
+}
+
+.container { padding: 45px 8%; }
+
+.filme {
+    display: flex;
+    gap: 35px;
+    align-items: flex-start;
+}
+
+.poster {
+    width: 260px;
+    border-radius: 12px;
+}
+
+.info { flex: 1; }
+
+h1 {
+    font-size: 38px;
+    margin: 15px 0;
+}
+
+h2 {
+    color: #e63946;
+    margin: 30px 0 15px;
+}
+
+p {
+    color: #bbb;
+    line-height: 1.7;
+}
+
+.etiqueta {
+    display: inline-block;
+    background: #292930;
+    padding: 8px 13px;
+    border-radius: 20px;
+    margin: 5px 5px 15px 0;
+    font-size: 13px;
+}
+
+.estrelas button {
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #555;
+    cursor: pointer;
+}
+
+.estrelas button.selecionada {
+    color: #f5c542;
+}
+
+button {
+    cursor: pointer;
+}
+
+.trailer {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-width: 800px;
+}
+
+.trailer iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 12px;
+}
+
+.comentarios {
+    max-width: 800px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 100px;
+    background: #17171e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    color: white;
+    font-size: 15px;
+    resize: vertical;
+}
+
+.botao {
+    background: #e63946;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 7px;
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.comentario {
+    background: #17171e;
+    border: 1px solid #292930;
+    padding: 15px;
+    border-radius: 9px;
+    margin-top: 12px;
+}
+
+.comentario strong { color: #e63946; }
+
+footer {
+    padding: 30px;
+    text-align: center;
+    color: #777;
+    margin-top: 50px;
+    border-top: 1px solid #292930;
+}
+
+@media(max-width: 650px) {
+    .filme { flex-direction: column; }
+    .poster { width: 100%; max-width: 280px; }
+    h1 { font-size: 30px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2 class="logo">PONTO <span>ZERO.</span></h2>
+    <a href="filmes.html">← Voltar para os filmes</a>
+</header>
+
+<main class="container">
+
+    <section class="filme">
+        <img id="poster" class="poster" alt="Pôster do filme">
+
+        <div class="info">
+            <h1 id="titulo">Carregando...</h1>
+            <div id="etiquetas"></div>
+            <p id="sinopse"></p>
+            <p id="direcao" style="margin-top:15px"></p>
+        </div>
+    </section>
+
+    <section>
+        <h2>🎬 Trailer</h2>
+        <div class="trailer">
+            <iframe id="trailer"
+                title="Trailer do filme"
+                allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+        </div>
+    </section>
+
+    <section>
+        <h2>⭐ Avalie este filme</h2>
+        <p>Qual nota você daria para este filme?</p>
+        <div class="estrelas" id="estrelas">
+            <button data-nota="1">★</button>
+            <button data-nota="2">★</button>
+            <button data-nota="3">★</button>
+            <button data-nota="4">★</button>
+            <button data-nota="5">★</button>
+        </div>
+        <p id="notaTexto">Você ainda não avaliou este filme.</p>
+    </section>
+
+    <section class="comentarios">
+        <h2>💬 Opiniões da comunidade</h2>
+        <textarea id="textoComentario"
+            placeholder="Conte o que você achou do filme..."></textarea>
+        <button class="botao" id="enviar">Publicar opinião</button>
+        <div id="listaComentarios"></div>
+    </section>
+
+</main>
+
+<footer>
+    © 2026 Ponto Zero. Todos os direitos reservados.
+</footer>
+
+<script>
+const filmes = {
+    interestelar: {
+        titulo: "Interestelar",
+        ano: 2014,
+        genero: "Ficção científica",
+        duracao: "169 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+        sinopse: "Em um futuro em que a Terra enfrenta uma crise ambiental, um grupo de astronautas parte em uma missão pelo espaço para encontrar um novo lar para a humanidade.",
+        direcao: "Direção: Christopher Nolan",
+        trailer: "zSWdZVtXT7E"
+    },
+
+    batman: {
+        titulo: "Batman: O Cavaleiro das Trevas",
+        ano: 2008,
+        genero: "Ação",
+        duracao: "152 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+        sinopse: "Batman enfrenta o Coringa, um criminoso que ameaça mergulhar Gotham City no caos.",
+        direcao: "Direção: Christopher Nolan",
+        trailer: "EXeTwQWrcwY"
+    },
+
+    origem: {
+        titulo: "A Origem",
+        ano: 2010,
+        genero: "Ficção científica",
+        duracao: "148 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
+        sinopse: "Um especialista em invadir sonhos recebe uma missão quase impossível: implantar uma ideia na mente de alguém.",
+        direcao: "Direção: Christopher Nolan",
+        trailer: "YoHD9XEInc0"
+    },
+
+    parasita: {
+        titulo: "Parasita",
+        ano: 2019,
+        genero: "Suspense",
+        duracao: "132 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+        sinopse: "Uma família de baixa renda consegue entrar aos poucos na vida de uma família rica, mas segredos começam a aparecer.",
+        direcao: "Direção: Bong Joon-ho",
+        trailer: "5xH0HfJHsaY"
+    },
+
+    liberdade: {
+        titulo: "Um Sonho de Liberdade",
+        ano: 1994,
+        genero: "Drama",
+        duracao: "142 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg",
+        sinopse: "Um banqueiro condenado à prisão constrói uma amizade e mantém viva a esperança de liberdade.",
+        direcao: "Direção: Frank Darabont",
+        trailer: "6hB3S9bIaco"
+    },
+
+    matrix: {
+        titulo: "Matrix",
+        ano: 1999,
+        genero: "Ação",
+        duracao: "136 minutos",
+        poster: "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+        sinopse: "Um programador descobre que a realidade em que vive é uma simulação controlada por máquinas.",
+        direcao: "Direção: Lana e Lilly Wachowski",
+        trailer: "vKQi3bBA1y8"
+    }
+};
+
+const parametros = new URLSearchParams(window.location.search);
+const slug = parametros.get("filme");
+const filme = filmes[slug];
+
+if (!filme) {
+    document.querySelector("main").innerHTML =
+        "<h1>Filme não encontrado</h1><p><a href='filmes.html'>Voltar ao catálogo</a></p>";
+} else {
+    document.title = filme.titulo + " | Ponto Zero";
+    document.getElementById("titulo").textContent = filme.titulo;
+    document.getElementById("poster").src = filme.poster;
+    document.getElementById("poster").alt = filme.titulo;
+    document.getElementById("sinopse").textContent = filme.sinopse;
+    document.getElementById("direcao").textContent = filme.direcao;
+
+    document.getElementById("etiquetas").innerHTML =
+        `<span class="etiqueta">${filme.genero}</span>
+         <span class="etiqueta">${filme.ano}</span>
+         <span class="etiqueta">${filme.duracao}</span>`;
+
+    document.getElementById("trailer").src =
+        "https://www.youtube.com/embed/" + filme.trailer;
+}
+
+// Avaliações salvas neste navegador
+const chaveNota = "pz-nota-" + slug;
+let notaAtual = Number(localStorage.getItem(chaveNota)) || 0;
+
+const botoesEstrelas = document.querySelectorAll(".estrelas button");
+
+function atualizarEstrelas() {
+    botoesEstrelas.forEach(botao => {
+        botao.classList.toggle(
+            "selecionada",
+            Number(botao.dataset.nota) <= notaAtual
+        );
+    });
+
+    document.getElementById("notaTexto").textContent =
+        notaAtual ? "Sua nota: " + notaAtual + " de 5 estrelas." :
+        "Você ainda não avaliou este filme.";
+}
+
+botoesEstrelas.forEach(botao => {
+    botao.addEventListener("click", () => {
+        notaAtual = Number(botao.dataset.nota);
+        localStorage.setItem(chaveNota, notaAtual);
+        atualizarEstrelas();
+    });
+});
+
+atualizarEstrelas();
+
+// Comentários salvos neste navegador
+const chaveComentarios = "pz-comentarios-" + slug;
+let comentarios = JSON.parse(
+    localStorage.getItem(chaveComentarios) || "[]"
+);
+
+function mostrarComentarios() {
+    const lista = document.getElementById("listaComentarios");
+    lista.innerHTML = "";
+
+    comentarios.forEach(comentario => {
+        const card = document.createElement("div");
+        card.className = "comentario";
+
+        const nome = document.createElement("strong");
+        nome.textContent = "Visitante";
+
+        const texto = document.createElement("p");
+        texto.textContent = comentario;
+
+        card.append(nome, texto);
+        lista.appendChild(card);
+    });
+}
+
+document.getElementById("enviar").addEventListener("click", () => {
+    const campo = document.getElementById("textoComentario");
+    const texto = campo.value.trim();
+
+    if (!texto) {
+        alert("Escreva sua opinião antes de publicar!");
+        return;
+    }
+
+    comentarios.push(texto);
+    localStorage.setItem(chaveComentarios, JSON.stringify(comentarios));
+
+    campo.value = "";
+    mostrarComentarios();
+});
+
+mostrarComentarios();
+</script>
+
+</body>
+</html>
