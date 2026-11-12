@@ -28,7 +28,7 @@ async function carregar(){
  const accepted=rows.filter(x=>x.status==='aceita');
  $('recebidos').replaceChildren();$('enviados').replaceChildren();$('amigos').replaceChildren();
  if(!incoming.length)$('recebidos').textContent='Nenhum convite recebido.';
- for(const r of incoming){const n=await nome(r.remetente_id);$('recebidos').append(item(n,'Quer ser seu amigo.',[btn('Aceitar',async()=>{const {error}=await db.from('solicitacoes_amizade').update({status:'aceita',atualizado_em:new Date().toISOString()}).eq('id',r.id);if(error)alert('Não foi possível aceitar o convite.');await carregar()}),btn('Recusar',async()=>{const {error}=await db.from('solicitacoes_amizade').update({status:'recusada',atualizado_em:new Date().toISOString()}).eq('id',r.id);if(error)alert('Não foi possível recusar.');await carregar()},true)]))}
+ for(const r of incoming){const n=await nome(r.remetente_id);$('recebidos').append(item(n,'Quer ser seu amigo.',[btn('Aceitar',async()=>{const {error}=await db.from('solicitacoes_amizade').update({status:'aceita'}).eq('id',r.id);if(error)alert('Não foi possível aceitar o convite.');await carregar()}),btn('Recusar',async()=>{const {error}=await db.from('solicitacoes_amizade').update({status:'recusada'}).eq('id',r.id);if(error)alert('Não foi possível recusar.');await carregar()},true)]))}
  if(!outgoing.length)$('enviados').textContent='Nenhum convite pendente.';
  for(const r of outgoing){const n=await nome(r.destinatario_id);$('enviados').append(item(n,'Convite aguardando resposta.',[link('Ver perfil','perfil.html?id='+encodeURIComponent(r.destinatario_id))]))}
  if(!accepted.length)$('amigos').textContent='Você ainda não tem amigos adicionados.';
