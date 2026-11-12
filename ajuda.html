@@ -56,18 +56,7 @@ const SUPABASE_URL='https://fkeayqbvmifdzsiskqno.supabase.co';
 const SUPABASE_PUBLIC_KEY='sb_publishable_6MqEvatKcbWY3gfwDAglBA_jftIs8ty';
 const history=[];
 function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;messages.append(d);messages.scrollTop=messages.scrollHeight;return d}
-function choose(text){const q=text.toLocaleLowerCase('pt-BR');if(/senha|conta|login|entrar|cadastro|cadastrar|email|e-mail/.test(q))return'conta';if(/nota|avali|estrela/.test(q))return'avaliacao';if(/amig|convite|chat|convers/.test(q))return'amigos';if(/assist|plataforma|netflix|stream/.test(q))return'assistir';if(/filme|buscar|pesquis|catálogo|catalogo/.test(q))return'filmes';if(/erro|bug|não funciona|nao funciona|problema|trav/.test(q))return'erro';return''}
-const suggestions={
-conta:'Para criar uma conta, abra Comunidade e procure a área de conta. Use seu e-mail e crie uma senha segura. Se houver confirmação por e-mail, siga o link recebido. Nunca compartilhe sua senha.',
-filmes:'Abra Filmes para explorar e pesquisar o catálogo. Clique em um título para ver sinopse, trailer e avaliações.',
-avaliacao:'Na página do filme, você pode dar de 1 a 5 estrelas e também registrar uma nota pessoal de 0 a 10, que aparece no seu perfil.',
-amigos:'Entre em Amigos, pesquise pelo apelido da pessoa e envie um convite. Quando ela aceitar, vocês poderão conversar pelo chat privado.',
-assistir:'Abra a página do filme e procure a opção de plataformas para conferir onde ele está disponível. A disponibilidade muda conforme o serviço.',
-erro:'Me conte em qual página aconteceu, o que você clicou e qual mensagem de erro apareceu. Não envie senhas ou códigos.'
-};
 async function ask(text){
-const key=choose(text);
-if(key&&history.length===0){add(suggestions[key],'bot');history.push({role:'assistant',content:suggestions[key]});return}
 const thinking=add('Pensando…','bot');
 sendButton.disabled=true;question.disabled=true;status.textContent='A IA está preparando uma resposta…';
 try{
@@ -83,7 +72,7 @@ if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('A IA não r
 thinking.textContent=data.reply;
 history.push({role:'user',content:text},{role:'assistant',content:data.reply});
 while(history.length>12)history.shift();
-status.textContent='Assistente de IA ativo · Não envie informações confidenciais.';
+status.textContent='Atendimento por IA · Não envie informações confidenciais.';
 }catch(error){thinking.textContent=error.message||'Ocorreu um erro. Tente novamente.';status.textContent='O atendimento está temporariamente indisponível.'}
 finally{sendButton.disabled=false;question.disabled=false;question.focus()}
 }
