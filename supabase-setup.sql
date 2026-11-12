@@ -166,3 +166,90 @@ from public.votos_batalha
 group by filme_slug;
 
 grant select on public.ranking_filmes, public.ranking_quiz, public.ranking_batalha to anon, authenticated;
+
+ 
+-- Recursos sociais Ponto Zero: notas individuais, amizades e chat privado.
+create table if not exists public.avaliacoes_usuarios (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  filme_slug text not null,
+  nota smallint not null check (nota between 0 and 10),
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  primary key (user_id, filme_slug)
+);
+create index if not exists avaliacoes_usuarios_filme_idx on public.avaliacoes_usuarios (filme_slug, nota desc);
+create index if not exists avaliacoes_usuarios_user_idx on public.avaliacoes_usuarios (user_id, atualizado_em desc);
+
+create table if not exists public.solicitacoes_amizade (
+  id bigint generated always as identity primary key,
+  remetente_id uuid not null references auth.users(id) on delete cascade,
+  destinatario_id uuid not null references auth.users(id) on delete cascade,
+  status text not null default 'pendente' check (status in ('pendente','aceita','recusada')),
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  constraint solicitacao_nao_para_si check (remetente_id <> destinatario_id),
+  constraint solicitacao_unica unique (remetente_id, destinatario_id)
+);
+create index if not exists solicitacoes_destinatario_status_idx on public.solicitacoes_amizade (destinatario_id, status, criado_em desc);
+create index if not exists solicitacoes_remetente_status_idx on public.solicitacoes_amizade (remetente_id, status, criado_em desc);
+
+create table if not exists public.mensagens (
+  id bigint generated always as identity primary key,
+  remetente_id uuid not null references auth.users(id) on delete cascade,
+  destinatario_id uuid not null references auth.users(id) on delete cascade,
+  texto varchar(2000) not null check (char_length(trim(texto)) between 1 and 2000),
+  criado_em timestamptz not null default now(),
+  constraint mensagem_nao_para_si check (remetente_id <> destinatario_id)
+);
+create index if not exists mensagens_conversa_idx on public.mensagens (remetente_id, destinatario_id, criado_em desc);
+create index if not exists mensagens_destinatario_idx on public.mensagens (destinatario_id, criado_em desc);
+
+alter table public.avaliacoes_usuarios enable row level security;
+alter table public.solicitacoes_amizade enable row level security;
+alter table public.mensagens enable row level security;
+
+drop policy if exists "Perfil: leitura do próprio" on public.perfis;
+drop policy if exists "Perfis públicos para leitura" on public.perfis;
+create policy "Perfis públicos para leitura" on public.perfis for select to anon, authenticated using (true);
+
+drop policy if exists "Notas pessoais: leitura pública" on public.avaliacoes_usuarios;
+drop policy if exists "Notas pessoais: inserir própria" on public.avaliacoes_usuarios;
+drop policy if exists "Notas pessoais: atualizar própria" on public.avaliacoes_usuarios;
+create policy "Notas pessoais: leitura pública" on public.avaliacoes_usuarios for select to anon, authenticated using (true);
+create policy "Notas pessoais: inserir própria" on public.avaliacoes_usuarios for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "Notas pessoais: atualizar própria" on public.avaliacoes_usuarios for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+
+drop policy if exists "Amizades: ver próprias solicitações" on public.solicitacoes_amizade;
+drop policy if exists "Amizades: enviar convite próprio" on public.solicitacoes_amizade;
+drop policy if exists "Amizades: destinatário responde" on public.solicitacoes_amizade;
+drop policy if exists "Amizades: participantes podem cancelar" on public.solicitacoes_amizade;
+create policy "Amizades: ver próprias solicitações" on public.solicitacoes_amizade for select to authenticated using ((select auth.uid()) in (remetente_id, destinatario_id));
+create policy "Amizades: enviar convite próprio" on public.solicitacoes_amizade for insert to authenticated with check ((select auth.uid()) = remetente_id and remetente_id <> destinatario_id and status = 'pendente');
+create policy "Amizades: destinatário responde" on public.solicitacoes_amizade for update to authenticated using ((select auth.uid()) = destinatario_id and status = 'pendente') with check ((select auth.uid()) = destinatario_id and status in ('aceita','recusada'));
+create policy "Amizades: participantes podem cancelar" on public.solicitacoes_amizade for delete to authenticated using ((select auth.uid()) in (remetente_id, destinatario_id));
+
+drop policy if exists "Mensagens: participantes leem conversa" on public.mensagens;
+drop policy if exists "Mensagens: enviar para amigo" on public.mensagens;
+create policy "Mensagens: participantes leem conversa" on public.mensagens for select to authenticated using (
+  (select auth.uid()) in (remetente_id, destinatario_id) and exists (
+    select 1 from public.solicitacoes_amizade a where a.status='aceita' and
+    ((a.remetente_id=mensagens.remetente_id and a.destinatario_id=mensagens.destinatario_id) or
+     (a.remetente_id=mensagens.destinatario_id and a.destinatario_id=mensagens.remetente_id))
+  )
+);
+create policy "Mensagens: enviar para amigo" on public.mensagens for insert to authenticated with check (
+  (select auth.uid())=remetente_id and remetente_id<>destinatario_id and char_length(trim(texto)) between 1 and 2000 and exists (
+    select 1 from public.solicitacoes_amizade a where a.status='aceita' and
+    ((a.remetente_id=mensagens.remetente_id and a.destinatario_id=mensagens.destinatario_id) or
+     (a.remetente_id=mensagens.destinatario_id and a.destinatario_id=mensagens.remetente_id))
+  )
+);
+
+grant select on public.perfis, public.avaliacoes_usuarios to anon, authenticated;
+grant insert, update on public.avaliacoes_usuarios to authenticated;
+grant select, insert, update(status), delete on public.solicitacoes_amizade to authenticated;
+grant select, insert on public.mensagens to authenticated;
+create or replace view public.ranking_notas_usuarios with (security_invoker = true) as
+select filme_slug, round(avg(nota)::numeric,2) as media, count(*)::bigint as quantidade from public.avaliacoes_usuarios group by filme_slug;
+grant select on public.ranking_notas_usuarios to anon, authenticated;
+do $$ begin alter publication supabase_realtime add table public.mensagens; exception when duplicate_object then null; when undefined_object then null; end $$;
