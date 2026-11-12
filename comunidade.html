@@ -2,13 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Comunidade | Ponto Zero</title>
+<title>Comunidade Ponto Zero | Avalie filmes e encontre cinéfilos</title>
+<meta name="description" content="Crie seu perfil, avalie filmes, encontre amigos, participe do quiz e descubra opiniões da comunidade Ponto Zero.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://ponto-zero.github.io/Ponto-Zero/comunidade.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Comunidade | Ponto Zero">
+<meta property="og:description" content="Avalie filmes, encontre cinéfilos e participe da comunidade.">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b0b0f;color:#fff;font-family:Arial,sans-serif}header{background:#111116;padding:22px 8%;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;border-bottom:1px solid #292930}header h1{font-size:26px}header span,.destaque span{color:#e63946}nav{display:flex;gap:18px;flex-wrap:wrap}nav a{color:#ddd;text-decoration:none}nav a:hover{color:#e63946}.hero{padding:55px 8%;background:linear-gradient(110deg,#28131a,#0b0b0f)}.hero h2{font-size:38px;margin:0 0 12px}.hero p{color:#bbb}.conteudo{padding:35px 8%}.secao{background:#15151c;border:1px solid #2c2c35;border-radius:12px;padding:24px;margin-bottom:22px}.secao h2{margin:0 0 14px}.muted{color:#aaa;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:15px}.filme{background:#20202a;border-radius:9px;overflow:hidden}.filme img{width:100%;height:230px;object-fit:cover;display:block}.filme div{padding:12px}.filme h3{font-size:15px;margin:0 0 8px}.filme a{color:#ff747e;text-decoration:none}.btn,button,select,input{font:inherit}.btn,button{border:0;border-radius:7px;padding:11px 15px;background:#e63946;color:white;cursor:pointer;font-weight:bold}.btn:hover,button:hover{background:#bd2633}.secundario{background:#292933}.linha{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.campo{padding:12px;background:#20202a;border:1px solid #444;color:#fff;border-radius:7px;max-width:100%}.lista{display:grid;gap:10px}.item{background:#20202a;padding:12px;border-radius:8px;display:flex;justify-content:space-between;gap:10px;align-items:center}.item a{color:#ff7b84;text-decoration:none}.opcao{display:block;background:#22222c;padding:12px;border-radius:8px;margin:8px 0;cursor:pointer}.placar{font-size:13px;color:#bbb}.aviso{font-size:13px;color:#999}footer{text-align:center;padding:28px;color:#777;border-top:1px solid #292930}
 </style><link rel="stylesheet" href="espaco.css?v=1">
 </head>
 <body>
-<header><h1>PONTO <span>ZERO.</span></h1><nav><a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="onde-assistir.html">Onde assistir</a><a href="comunidade.html">Comunidade</a><a href="social.html">Amigos</a><a href="ajuda.html">Ajuda</a></nav></header>
+<header><h1>PONTO <span>ZERO.</span></h1><nav><a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="onde-assistir.html">Onde assistir</a><a href="comunidade.html">Comunidade</a><a href="ranking.html">Ranking</a><a href="social.html">Amigos</a><a href="ajuda.html">Ajuda</a></nav></header>
 <section class="hero"><h2>O cinema fica melhor <span>em comunidade.</span></h2><p>Descubra, organize, avalie e escolha seus próximos filmes.</p></section>
 <main class="conteudo">
 <section class="secao" id="conta"><h2>🔐 Conta Ponto Zero</h2><p class="muted">Entre ou crie uma conta para levar seu perfil e sua lista para qualquer dispositivo.</p><div class="linha"><input class="campo" id="emailConta" type="email" autocomplete="email" placeholder="Seu e-mail"><input class="campo" id="senhaConta" type="password" autocomplete="current-password" minlength="8" required placeholder="Senha (mínimo 8 caracteres)"><button id="entrarConta">Entrar</button><button id="criarConta" class="secundario">Criar conta</button><button id="sairConta" class="secundario" hidden>Sair</button></div><p id="contaMsg" class="aviso" aria-live="polite"></p></section>
@@ -16,6 +22,7 @@
 <section class="secao" id="perfil"><h2>👤 Meu perfil</h2><p class="muted">Entre para salvar seu apelido e seus gêneros favoritos na nuvem. Sem login, o perfil fica apenas neste navegador.</p><div class="linha"><input class="campo" id="nome" maxlength="30" placeholder="Seu apelido"><button id="salvarPerfil">Salvar perfil</button></div><p id="perfilMsg" class="aviso"></p><p><strong>Gêneros favoritos</strong></p><div class="linha" id="generos"></div></section>
 <section class="secao"><h2>✨ Recomendações para você</h2><p class="muted">Sugestões baseadas nos gêneros escolhidos no seu perfil.</p><button id="recomendar">Atualizar recomendações</button><div class="grid" id="recomendacoes" style="margin-top:16px"></div></section>
 <section class="secao" id="minha-lista"><h2>📌 Minha lista para assistir</h2><p class="muted">Sua lista é sincronizada com sua conta. Ao entrar, os favoritos já salvos neste navegador serão importados.</p><div class="grid" id="watchlist"></div></section>
+<section class="secao"><h2>🏆 Placar de avaliadores</h2><p class="muted">Veja quem mais avalia filmes no Ponto Zero.</p><a class="btn" href="ranking.html">Abrir ranking de usuários</a></section>
 <section class="secao" id="ranking"><h2>🏆 Ranking da comunidade</h2><p class="muted">Filmes ordenados pela média das avaliações enviadas pelos visitantes.</p><div id="rankingLista" class="lista">Carregando avaliações...</div></section>
 <section class="secao" id="quiz"><h2>🧠 Quiz de cinema</h2><p id="pergunta" class="muted"></p><div id="opcoes"></div><p id="resultado" aria-live="polite"></p><button id="proximaPergunta">Outra pergunta</button></section>
 <section class="secao" id="placarQuiz"><h2>🏅 Placar do quiz</h2><div id="rankingQuiz" class="lista">Carregando placar...</div></section>
