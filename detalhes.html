@@ -478,7 +478,7 @@ if (!filme) {
             if(comentario.criado_em){
                 const data=document.createElement("time");
                 const dataComentario=new Date(comentario.criado_em);
-                data.dateTime=dataComentario.toISOString();
+                data.dateTime=Number.isNaN(dataComentario.getTime())?"":dataComentario.toISOString();
                 data.textContent=Number.isNaN(dataComentario.getTime())?"":dataComentario.toLocaleString("pt-BR");
                 cabecalho.appendChild(data);
             }
