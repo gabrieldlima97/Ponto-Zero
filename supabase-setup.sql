@@ -160,4 +160,4 @@ select user_id, max(apelido) as apelido, sum(pontos)::bigint as pontos,
 from public.pontuacoes_quiz
 group by user_id;
 
-grant select on public.ranking_filmes, public.ranking_quiz to anon, authenticated;
+grant select on public.ranking_filmes, public.ranking_quiz, public.ranking_batalha to anon, authenticated;
