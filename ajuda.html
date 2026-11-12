@@ -30,14 +30,14 @@ header h1{margin:0;font-size:26px}header h1 span{color:#e63946}nav{display:flex;
 <body>
 <header><h1>PONTO <span>ZERO.</span></h1><nav><a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="comunidade.html">Comunidade</a><a href="social.html">Amigos</a></nav></header>
 <main class="wrap">
-<section class="hero"><div class="eyebrow">Suporte Ponto Zero</div><h2>Estamos aqui no seu universo. ✦</h2><p>Conte o que aconteceu. Nosso assistente rápido pode orientar sobre as funções do site e, se precisar de uma conversa mais aberta, você pode continuar com o ChatGPT.</p></section>
+<section class="hero"><div class="eyebrow">Suporte Ponto Zero</div><h2>Estamos aqui no seu universo. ✦</h2><p>Converse com a inteligência artificial do Ponto Zero. Ela entende suas dúvidas e orienta você passo a passo.</p></section>
 <div class="layout">
-<section class="panel"><h3>💬 Assistente de ajuda</h3><p class="muted">Olá! Sou o assistente de suporte do Ponto Zero. Posso ajudar com sua conta, filmes, avaliações, amizades e outras funções.</p>
+<section class="panel"><h3>💬 Assistente de ajuda</h3><p class="muted">Olá! Sou a IA de suporte do Ponto Zero. Pode perguntar do seu jeito — estou aqui para ajudar!</p>
 <div class="quick" aria-label="Assuntos frequentes"><button type="button" data-topic="conta">Conta e senha</button><button type="button" data-topic="filmes">Encontrar filmes</button><button type="button" data-topic="avaliacao">Avaliações</button><button type="button" data-topic="amigos">Amigos e chat</button><button type="button" data-topic="erro">Problemas no site</button></div>
 <div id="messages" class="messages" role="log" aria-live="polite"><div class="msg bot">Oi! 😊 O que você precisa resolver hoje?</div></div>
 <form id="chatForm" class="send"><input id="question" maxlength="500" autocomplete="off" placeholder="Digite sua dúvida..." aria-label="Sua dúvida" required><button type="submit">Enviar</button></form>
-<p class="privacy">Não envie senhas, códigos de confirmação ou dados bancários. Este assistente responde dúvidas comuns; ele não acessa sua conta nem altera dados.</p>
-<a id="chatgpt" class="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Continuar atendimento no ChatGPT ↗</a>
+<p class="privacy">Não envie senhas, códigos de confirmação, dados bancários ou informações privadas. A IA não acessa sua conta nem altera dados.</p>
+<p id="chatStatus" class="privacy" role="status">Assistente conectado ao serviço de IA. As mensagens desta conversa ficam apenas nesta sessão.</p>
 </section>
 <aside class="panel"><h3>📚 Dúvidas frequentes</h3><div class="faq">
 <details><summary>Como crio minha conta?</summary><p>Acesse Comunidade, informe seu e-mail e crie uma senha com pelo menos 8 caracteres. Depois, siga a confirmação por e-mail, se for solicitada.</p></details>
@@ -51,22 +51,44 @@ header h1{margin:0;font-size:26px}header h1 span{color:#e63946}nav{display:flex;
 </main>
 <script>
 (function(){
-const $=id=>document.getElementById(id),messages=$('messages'),question=$('question'),chatgpt=$('chatgpt');
-const answers={
-conta:'Para criar uma conta, abra Comunidade e use a área “Conta Ponto Zero”. Informe seu e-mail e uma senha com pelo menos 8 caracteres. Se não conseguir entrar, confira se o e-mail foi confirmado e se digitou a senha corretamente. Nunca compartilhe sua senha com ninguém.',
-filmes:'Abra a aba Filmes para explorar o catálogo. Você pode pesquisar pelo título e usar os filtros disponíveis. Ao clicar em um filme, verá a página com sinopse, trailer, notas e comentários.',
-avaliacao:'Na página de cada filme há duas formas de avaliar: de 1 a 5 estrelas para a média rápida da comunidade e uma nota pessoal de 0 a 10, que fica no seu perfil público quando você está conectado.',
-amigos:'Entre na sua conta e abra Amigos. Pesquise o apelido da pessoa e envie um convite. Quando ela aceitar, vocês aparecem na lista de amigos e o botão Abrir chat fica disponível.',
-erro:'Vamos tentar localizar o problema. Atualize a página e tente novamente. Se continuar, anote qual página estava usando, o que clicou e a mensagem de erro. Não envie senha, códigos ou informações privadas.',
-assistir:'Acesse Onde assistir ou abra a página do filme e clique em “Ver em quais sites assistir”. Os links levam às plataformas para você conferir a disponibilidade atual.'
+const $=id=>document.getElementById(id),messages=$('messages'),question=$('question'),sendButton=$('chatForm').querySelector('button'),status=$('chatStatus');
+const SUPABASE_URL='https://fkeayqbvmifdzsiskqno.supabase.co';
+const SUPABASE_PUBLIC_KEY='sb_publishable_6MqEvatKcbWY3gfwDAglBA_jftIs8ty';
+const history=[];
+function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;messages.append(d);messages.scrollTop=messages.scrollHeight;return d}
+function choose(text){const q=text.toLocaleLowerCase('pt-BR');if(/senha|conta|login|entrar|cadastro|cadastrar|email|e-mail/.test(q))return'conta';if(/nota|avali|estrela/.test(q))return'avaliacao';if(/amig|convite|chat|convers/.test(q))return'amigos';if(/assist|plataforma|netflix|stream/.test(q))return'assistir';if(/filme|buscar|pesquis|catálogo|catalogo/.test(q))return'filmes';if(/erro|bug|não funciona|nao funciona|problema|trav/.test(q))return'erro';return''}
+const suggestions={
+conta:'Para criar uma conta, abra Comunidade e procure a área de conta. Use seu e-mail e crie uma senha segura. Se houver confirmação por e-mail, siga o link recebido. Nunca compartilhe sua senha.',
+filmes:'Abra Filmes para explorar e pesquisar o catálogo. Clique em um título para ver sinopse, trailer e avaliações.',
+avaliacao:'Na página do filme, você pode dar de 1 a 5 estrelas e também registrar uma nota pessoal de 0 a 10, que aparece no seu perfil.',
+amigos:'Entre em Amigos, pesquise pelo apelido da pessoa e envie um convite. Quando ela aceitar, vocês poderão conversar pelo chat privado.',
+assistir:'Abra a página do filme e procure a opção de plataformas para conferir onde ele está disponível. A disponibilidade muda conforme o serviço.',
+erro:'Me conte em qual página aconteceu, o que você clicou e qual mensagem de erro apareceu. Não envie senhas ou códigos.'
 };
-function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;messages.append(d);messages.scrollTop=messages.scrollHeight}
-function choose(text){const q=text.toLocaleLowerCase('pt-BR');let key='';if(/senha|conta|login|entrar|cadastro|cadastrar|email|e-mail/.test(q))key='conta';else if(/nota|avali|estrela|10\s*\/\s*10/.test(q))key='avaliacao';else if(/amig|convite|chat|convers/.test(q))key='amigos';else if(/assist|plataforma|netflix|stream/.test(q))key='assistir';else if(/filme|buscar|pesquis|catálogo|catalogo/.test(q))key='filmes';else if(/erro|bug|não funciona|nao funciona|problema|trav/.test(q))key='erro';return key}
-function handoff(){const context=Array.from(messages.querySelectorAll('.msg')).map(x=>(x.classList.contains('user')?'Visitante: ':'Assistente: ')+x.textContent).join('\n');chatgpt.href='https://chatgpt.com/?q='+encodeURIComponent('Você é o suporte do site Ponto Zero, uma comunidade brasileira sobre filmes. Ajude este visitante com paciência e em português. Contexto da conversa:\n'+context+'\nContinue o atendimento e faça uma pergunta objetiva se faltar informação.');}
-function respond(text){const key=choose(text);add(key?answers[key]:'Não encontrei uma resposta específica para essa dúvida na ajuda rápida. Clique em “Continuar atendimento no ChatGPT” para explicar melhor o caso e receber ajuda em uma conversa completa.','bot');handoff()}
-$('chatForm').addEventListener('submit',e=>{e.preventDefault();const text=question.value.trim();if(!text)return;add(text,'user');question.value='';respond(text)});
-document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.topic;add(b.textContent,'user');respond(key==='erro'?'Estou com um erro no site':key==='avaliacao'?'Como faço uma avaliação?':key==='amigos'?'Como adiciono amigos e converso?':key==='filmes'?'Como encontro filmes?':'Como crio minha conta?')}));
-handoff();
+async function ask(text){
+const key=choose(text);
+if(key&&history.length===0){add(suggestions[key],'bot');history.push({role:'assistant',content:suggestions[key]});return}
+const thinking=add('Pensando…','bot');
+sendButton.disabled=true;question.disabled=true;status.textContent='A IA está preparando uma resposta…';
+try{
+const payload=history.concat({role:'user',content:text}).slice(-12);
+const response=await fetch(SUPABASE_URL+'/functions/v1/ponto-zero-assistente',{
+method:'POST',
+headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLIC_KEY},
+body:JSON.stringify({messages:payload})
+});
+const data=await response.json().catch(()=>({}));
+if(!response.ok)throw new Error(data.error||'Não foi possível falar com o assistente.');
+if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('A IA não retornou uma resposta.');
+thinking.textContent=data.reply;
+history.push({role:'user',content:text},{role:'assistant',content:data.reply});
+while(history.length>12)history.shift();
+status.textContent='Assistente de IA ativo · Não envie informações confidenciais.';
+}catch(error){thinking.textContent=error.message||'Ocorreu um erro. Tente novamente.';status.textContent='O atendimento está temporariamente indisponível.'}
+finally{sendButton.disabled=false;question.disabled=false;question.focus()}
+}
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();const text=question.value.trim();if(!text)return;add(text,'user');question.value='';ask(text)});
+document.querySelectorAll('[data-topic]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.topic;const prompt={conta:'Como faço para criar minha conta e resolver problemas de acesso?',filmes:'Como encontro filmes no Ponto Zero?',avaliacao:'Como funcionam as avaliações de filmes?',amigos:'Como adiciono amigos e uso o chat privado?',erro:'Estou com um problema no site. Pode me ajudar?'}[key];add(button.textContent,'user');ask(prompt)}));
 })();
 </script>
 </body></html>
