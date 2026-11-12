@@ -1,0 +1,79 @@
+name: Ponto Zero quality checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verificar scripts JavaScript
+        run: |
+          node --check pz-core.js
+          node --check catalogo-extra.js
+          node --check catalogo-1000.js
+          node --check posteres.js
+
+      - name: Verificar scripts embutidos nas páginas
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess
+          import tempfile
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.current = None
+                  self.items = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script":
+                      attrs = dict(attrs)
+                      kind = (attrs.get("type") or "text/javascript").lower()
+                      if not attrs.get("src") and kind in ("text/javascript", "application/javascript", "module"):
+                          self.current = []
+
+              def handle_data(self, data):
+                  if self.current is not None:
+                      self.current.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag == "script" and self.current is not None:
+                      code = "".join(self.current).strip()
+                      if code:
+                          self.items.append(code)
+                      self.current = None
+
+          failures = []
+          for page in sorted(Path(".").glob("*.html")):
+              parser = Scripts()
+              parser.feed(page.read_text(encoding="utf-8"))
+              for index, code in enumerate(parser.items, 1):
+                  with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8") as file:
+                      file.write(code)
+                      file.flush()
+                      result = subprocess.run(["node", "--check", file.name], capture_output=True, text=True)
+                      if result.returncode:
+                          failures.append(f"{page} — script {index}:\n{result.stderr}")
+
+          if failures:
+              print("\n".join(failures))
+              raise SystemExit(1)
+          print("Todos os scripts embutidos passaram na verificação de sintaxe.")
+          PY
