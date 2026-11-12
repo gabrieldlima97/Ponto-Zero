@@ -31,12 +31,12 @@ footer{text-align:center;padding:30px;color:#777;border-top:1px solid #292930}
 <header>
   <a href="index.html" class="logo">PONTO <span>ZERO.</span></a>
   <nav>
-    <a href="index.html">Início</a><a href="filmes.html">Filmes</a>
+    <a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="comunidade.html">Comunidade</a>
 </nav>
 </header>
 <section class="hero">
   <h1>Onde <span>assistir?</span></h1>
-  <p>Veja as plataformas informadas para cada filme. Quando houver uma opção disponível, você poderá acessar o serviço oficial por aqui.</p>
+  <p>Veja as plataformas informadas e pesquise no catálogo completo. A disponibilidade pode mudar por região e data.</p><input id="buscaOndeAssistir" type="search" aria-label="Buscar filme" placeholder="🔎 Buscar filme pelo título..." style="display:block;width:min(700px,90%);margin:22px auto 0;padding:14px 16px;border-radius:8px;border:1px solid #444;background:#17171e;color:white;font-size:16px">
 </section>
 <main class="lista">
   <article class="card" id="interestelar">
@@ -597,5 +597,77 @@ footer{text-align:center;padding:30px;color:#777;border-top:1px solid #292930}
 </main>
 <div class="aviso"><strong>Atenção:</strong> esta página é uma guia do Ponto Zero. Os catálogos mudam e a presença de um serviço pode depender de assinatura, canal adicional, aluguel ou compra. Os botões abrem os sites oficiais das plataformas; confirme lá se o filme está disponível no seu plano e na sua região.</div>
 <footer>© 2026 Ponto Zero. Todos os direitos reservados.</footer>
+
+<script src="catalogo-extra.js"></script>
+<script src="posteres.js?v=2"></script>
+<script src="catalogo-1000.js?v=2"></script>
+<script>
+(function(){
+  "use strict";
+  const lista=document.querySelector("main.lista");
+  const busca=document.getElementById("buscaOndeAssistir");
+  if(!lista||!busca)return;
+
+  const existentes=new Set([...lista.querySelectorAll(".card[id]")].map(card=>card.id));
+  const extras=(window.filmesExtras||[]).map(item=>({
+    slug:item[0],titulo:item[1],ano:item[2],genero:item[3]
+  }));
+  const catalogo=(window.catalogo1000||[]).map(f=>({
+    slug:f.slug,titulo:f.titulo,ano:f.ano,genero:f.genero
+  }));
+  const filmes=[...extras,...catalogo];
+
+  filmes.forEach(f=>{
+    if(!f.slug||!f.titulo||existentes.has(f.slug))return;
+    const card=document.createElement("article");
+    card.className="card";
+    card.id=f.slug;
+
+    const titulo=document.createElement("h2");
+    titulo.textContent=f.titulo;
+    const ano=document.createElement("p");
+    ano.className="ano";
+    ano.textContent=[f.ano,f.genero].filter(Boolean).join(" • ");
+    const estado=document.createElement("h3");
+    estado.textContent="Disponibilidade não confirmada";
+    const explicacao=document.createElement("p");
+    explicacao.className="nenhuma";
+    explicacao.textContent="Ainda não temos uma plataforma confirmada para este filme. Consulte os serviços oficiais antes de assinar, alugar ou comprar.";
+    const voltar=document.createElement("a");
+    voltar.className="voltar";
+    voltar.href="detalhes.html?filme="+encodeURIComponent(f.slug);
+    voltar.textContent="← Ver detalhes do filme";
+
+    card.append(titulo,ano,estado,explicacao,voltar);
+    lista.appendChild(card);
+    existentes.add(f.slug);
+  });
+
+  const cards=[...lista.querySelectorAll(".card")];
+  function filtrar(){
+    const termo=busca.value.trim().toLocaleLowerCase("pt-BR");
+    let visiveis=0;
+    cards.forEach(card=>{
+      const titulo=card.querySelector("h2")?.textContent||"";
+      const mostrar=titulo.toLocaleLowerCase("pt-BR").includes(termo);
+      card.hidden=!mostrar;
+      if(mostrar)visiveis++;
+    });
+    let vazio=document.getElementById("semResultadoOndeAssistir");
+    if(!visiveis&&!vazio){
+      vazio=document.createElement("p");
+      vazio.id="semResultadoOndeAssistir";
+      vazio.className="nenhuma";
+      vazio.textContent="Nenhum filme encontrado.";
+      lista.appendChild(vazio);
+    }else if(visiveis&&vazio)vazio.remove();
+  }
+  busca.addEventListener("input",filtrar);
+  if(location.hash){
+    const alvo=document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if(alvo)alvo.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+})();
+</script>
 </body>
 </html>
