@@ -282,6 +282,20 @@ a.botao,
       slug:f[0],titulo:f[1],ano:f[2],genero:f[3],
       poster:(window.posterExtras||{})[f[0]]||""
     }));
+    [
+      ["interestelar","Interestelar","https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"],
+      ["batman","Batman: O Cavaleiro das Trevas","https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"],
+      ["origem","A Origem","https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg"],
+      ["parasita","Parasita","https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"],
+      ["liberdade","Um Sonho de Liberdade","https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg"],
+      ["matrix","Matrix","https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"],
+      ["oppenheimer","Oppenheimer","https://image.tmdb.org/t/p/w500/ptpr0kGAckfQkJeJIt8st5dglvd.jpg"],
+      ["barbie","Barbie","https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg"],
+      ["duna2","Duna: Parte Dois","https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg"],
+      ["aranhaverso","Homem-Aranha: Através do Aranhaverso","https://www.sonypicturesanimation.com/sites/default/files/styles/max_2600_x_2600/public/2022-12/SPIDER-MAN%20ACROSS%20THE%20SPIDER-VERSE.jpg?itok=xQ-EQiGO"],
+      ["whiplash","Whiplash: Em Busca da Perfeição","https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg"],
+      ["topgun","Top Gun: Maverick","https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg"]
+    ].forEach(([slug,titulo,poster])=>filmes.set(slug,{slug,titulo,poster}));
     const atuais=[...area.querySelectorAll(".filme-card")];
     atuais.forEach(card=>{
       const link=card.querySelector("a");
