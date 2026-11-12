@@ -1,0 +1,21 @@
+/* Ponto Zero — identidade espacial compartilhada */
+:root{color-scheme:dark;--pz-bg:#070914;--pz-panel:rgba(16,20,37,.88);--pz-border:rgba(151,164,255,.16);--pz-purple:#9b8cff;--pz-cyan:#65d9e8;--pz-red:#e63946}
+html{min-height:100%;background:var(--pz-bg)}
+body{position:relative;isolation:isolate;min-height:100vh;background-color:var(--pz-bg)!important;background-image:radial-gradient(ellipse at 15% 12%,rgba(93,74,180,.17),transparent 38%),radial-gradient(ellipse at 88% 58%,rgba(34,139,170,.10),transparent 42%),linear-gradient(180deg,rgba(7,9,20,.94),rgba(7,9,20,.98))!important;background-attachment:fixed!important}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.42;background-image:radial-gradient(1px 1px at 17px 23px,rgba(255,255,255,.8) 98%,transparent),radial-gradient(1px 1px at 91px 67px,rgba(180,197,255,.8) 98%,transparent),radial-gradient(1.4px 1.4px at 153px 121px,rgba(255,255,255,.65) 98%,transparent),radial-gradient(1px 1px at 211px 39px,rgba(117,222,255,.7) 98%,transparent),radial-gradient(1px 1px at 47px 188px,rgba(255,255,255,.55) 98%,transparent);background-size:257px 223px,311px 277px,383px 347px,419px 367px,293px 313px;animation:pz-twinkle 9s ease-in-out infinite alternate}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(2,4,12,.38) 100%)}
+@keyframes pz-twinkle{from{opacity:.25}to{opacity:.52}}
+header{background:rgba(10,13,27,.82)!important;border-color:var(--pz-border)!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 8px 30px rgba(0,0,0,.18)}
+nav a{transition:color .2s ease,text-shadow .2s ease}
+nav a:hover{color:var(--pz-cyan)!important;text-shadow:0 0 14px rgba(101,217,232,.35)}
+.destaque,.hero{background:linear-gradient(115deg,rgba(48,36,91,.52),rgba(13,24,47,.40),rgba(7,9,20,.2))!important;border-bottom:1px solid rgba(151,164,255,.08)}
+.card,.filme-card,.panel,.secao,.secao,.comentario,.nota-perfil,.item,.filme,.filme-card,.card{background-color:var(--pz-panel)!important;border-color:var(--pz-border)!important;box-shadow:0 12px 36px rgba(0,0,0,.16)}
+.card:hover,.filme-card:hover{border-color:rgba(155,140,255,.55)!important;box-shadow:0 14px 40px rgba(87,72,170,.16)}
+input,textarea,select,.field,.campo,.busca{background-color:rgba(12,16,31,.88)!important;border-color:rgba(151,164,255,.24)!important}
+button,.btn,.card-link,.acoes-inicio a,.assistir,.botao-plataformas{box-shadow:0 5px 18px rgba(0,0,0,.16);transition:filter .2s ease,transform .2s ease,border-color .2s ease}
+button:hover,.btn:hover,.card-link:hover,.acoes-inicio a:hover,.assistir:hover{filter:brightness(1.12);transform:translateY(-1px)}
+footer{border-color:var(--pz-border)!important;background:rgba(7,9,20,.3)}
+.pz-help-float{position:fixed!important;right:22px;bottom:20px;z-index:50;display:inline-flex;align-items:center;gap:9px;padding:13px 18px;border:1px solid rgba(166,154,255,.45);border-radius:999px;background:linear-gradient(135deg,#6555b8,#315d91);color:#fff!important;text-decoration:none!important;font-size:14px;font-weight:700;box-shadow:0 8px 28px rgba(55,49,130,.42);transition:transform .2s,box-shadow .2s}
+.pz-help-float:hover{transform:translateY(-3px);box-shadow:0 12px 34px rgba(75,100,190,.48)}
+@media(prefers-reduced-motion:reduce){body:before{animation:none}*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+@media(max-width:600px){.pz-help-float{right:12px;bottom:12px;padding:12px 15px}.pz-help-float span{display:none}}
