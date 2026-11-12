@@ -447,3 +447,45 @@ begin
  if v_rows=0 then return query select false,0,true;
  else return query select p_resposta=v_resposta,case when p_resposta=v_resposta then 1 else 0 end,false; end if;
 end; $$;
+
+
+-- Final quiz hardening: only question text/options are readable via column grants.
+drop view if exists public.quiz_perguntas_public;
+drop policy if exists "Quiz questions are publicly readable" on public.quiz_perguntas;
+create policy "Quiz questions are publicly readable" on public.quiz_perguntas
+  for select to anon,authenticated using (true);
+revoke all on public.quiz_perguntas from anon,authenticated;
+grant select (id,pergunta,opcoes) on public.quiz_perguntas to anon,authenticated;
+drop policy if exists "No direct access to help rate limits" on private.help_rate_limits;
+create policy "No direct access to help rate limits" on private.help_rate_limits
+  for all to public using (false) with check (false);
+
+create or replace function private.submit_quiz_answer(p_pergunta_id text,p_resposta smallint)
+returns table(correta boolean,pontos integer,ja_respondida boolean)
+language plpgsql security definer set search_path = ''
+as $$
+declare
+ v_user uuid:=auth.uid(); v_resposta smallint; v_apelido text; v_rows integer;
+ v_attempt_id text:=p_pergunta_id||':'||to_char(current_date,'YYYY-MM-DD');
+begin
+ if v_user is null then raise exception 'Entre na sua conta para registrar sua resposta.'; end if;
+ select q.resposta into v_resposta from public.quiz_perguntas q where q.id=p_pergunta_id;
+ if not found then raise exception 'Pergunta inválida.'; end if;
+ if p_resposta is null or p_resposta<0 or p_resposta>2 then raise exception 'Resposta inválida.'; end if;
+ select coalesce(nullif(trim(p.apelido),''),'Cinéfilo') into v_apelido from public.perfis p where p.user_id=v_user;
+ insert into public.pontuacoes_quiz(user_id,apelido,pontos,pergunta_id)
+ values(v_user,coalesce(v_apelido,'Cinéfilo'),case when p_resposta=v_resposta then 1 else 0 end,v_attempt_id)
+ on conflict(user_id,pergunta_id) do nothing;
+ get diagnostics v_rows=row_count;
+ if v_rows=0 then return query select false,0,true;
+ else return query select p_resposta=v_resposta,case when p_resposta=v_resposta then 1 else 0 end,false; end if;
+end; $$;
+revoke all on function private.submit_quiz_answer(text,smallint) from public,anon;
+grant usage on schema private to authenticated;
+grant execute on function private.submit_quiz_answer(text,smallint) to authenticated;
+create or replace function public.responder_quiz(p_pergunta_id text,p_resposta smallint)
+returns table(correta boolean,pontos integer,ja_respondida boolean)
+language sql security invoker set search_path = ''
+as $$ select * from private.submit_quiz_answer(p_pergunta_id,p_resposta); $$;
+revoke all on function public.responder_quiz(text,smallint) from public,anon;
+grant execute on function public.responder_quiz(text,smallint) to authenticated;
