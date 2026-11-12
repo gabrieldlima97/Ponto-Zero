@@ -26,7 +26,21 @@ const catalogo=window.catalogo1000||[];
 const generos=['Ação','Animação','Aventura','Comédia','Crime','Drama','Fantasia','Ficção científica','Romance','Suspense','Terror'];
 const slugify=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const extras=(window.filmesExtras||[]).map(([slug,titulo,ano,genero,duracao,diretor,sinopse])=>({slug,titulo,ano,genero,duracao,direcao:diretor,sinopse,poster:(window.posterExtras||{})[slug]||''}));
-const filmes=[...extras,...catalogo].map(f=>({...f,slug:f.slug||slugify(f.titulo)}));
+const baseFilmes=[
+{slug:'interestelar',titulo:'Interestelar',ano:2014,genero:'Ficção científica',poster:'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg'},
+{slug:'batman',titulo:'Batman: O Cavaleiro das Trevas',ano:2008,genero:'Ação',poster:'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg'},
+{slug:'origem',titulo:'A Origem',ano:2010,genero:'Ficção científica',poster:'https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg'},
+{slug:'parasita',titulo:'Parasita',ano:2019,genero:'Suspense',poster:'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg'},
+{slug:'liberdade',titulo:'Um Sonho de Liberdade',ano:1994,genero:'Drama',poster:'https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg'},
+{slug:'matrix',titulo:'Matrix',ano:1999,genero:'Ação',poster:'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg'},
+{slug:'oppenheimer',titulo:'Oppenheimer',ano:2023,genero:'Drama / Biografia',poster:'https://image.tmdb.org/t/p/w500/ptpr0kGAckfQkJeJIt8st5dglvd.jpg'},
+{slug:'barbie',titulo:'Barbie',ano:2023,genero:'Comédia / Fantasia',poster:'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg'},
+{slug:'duna2',titulo:'Duna: Parte Dois',ano:2024,genero:'Ficção científica',poster:'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg'},
+{slug:'aranhaverso',titulo:'Homem-Aranha: Através do Aranhaverso',ano:2023,genero:'Animação / Ação',poster:'https://www.sonypicturesanimation.com/sites/default/files/styles/max_2600_x_2600/public/2022-12/SPIDER-MAN%20ACROSS%20THE%20SPIDER-VERSE.jpg?itok=xQ-EQiGO'},
+{slug:'whiplash',titulo:'Whiplash: Em Busca da Perfeição',ano:2014,genero:'Drama / Música',poster:'https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg'},
+{slug:'topgun',titulo:'Top Gun: Maverick',ano:2022,genero:'Ação / Drama',poster:'https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg'}
+];
+const filmes=[...baseFilmes,...extras,...catalogo].map(f=>({...f,slug:f.slug||slugify(f.titulo)}));
 const ler=(k,d)=>window.PZ.readJSON(k,d);
 const salvar=(k,v)=>window.PZ.writeJSON(k,v);
 const sb=window.PZ.getSupabase();
