@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ponto-zero.github.io/Ponto-Zero/sitemap.xml
