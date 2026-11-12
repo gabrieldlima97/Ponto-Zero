@@ -253,3 +253,5 @@ create or replace view public.ranking_notas_usuarios with (security_invoker = tr
 select filme_slug, round(avg(nota)::numeric,2) as media, count(*)::bigint as quantidade from public.avaliacoes_usuarios group by filme_slug;
 grant select on public.ranking_notas_usuarios to anon, authenticated;
 do $$ begin alter publication supabase_realtime add table public.mensagens; exception when duplicate_object then null; when undefined_object then null; end $$;
+
+grant usage, select on sequence public.solicitacoes_amizade_id_seq, public.mensagens_id_seq to authenticated;
