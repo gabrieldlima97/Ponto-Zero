@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Administração | Ponto Zero</title>
+<link rel="stylesheet" href="espaco.css">
+<style>
+*{box-sizing:border-box}body{margin:0;color:#eef0ff;font-family:system-ui,sans-serif;padding:24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 20px;border:1px solid var(--pz-border);border-radius:16px}
+header h1{font-size:1.25rem;margin:0}header span{color:var(--pz-cyan)}nav{display:flex;gap:14px;flex-wrap:wrap}a{color:#9edff1}
+main{max-width:1100px;margin:28px auto}.panel{background:var(--pz-panel);border:1px solid var(--pz-border);border-radius:16px;padding:20px;margin:18px 0;overflow-wrap:anywhere}
+.item{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--pz-border)}.item:last-child{border:0}
+.item p{margin:5px 0;white-space:pre-wrap}.muted{color:#aeb5d4;font-size:.9rem}
+button{background:#9b8cff;color:#111327;border:0;border-radius:9px;padding:9px 13px;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.danger{background:#d85c70;color:white}
+#status{padding:12px;border-radius:10px;background:rgba(100,130,200,.12)}[hidden]{display:none!important}
+@media(max-width:600px){body{padding:12px}.item{display:block}.item button{margin-top:10px}}
+</style>
+</head>
+<body>
+<header><h1>PONTO <span>ZERO.</span> · Administração</h1><nav><a href="index.html">Início</a><a href="comunidade.html">Comunidade</a><a href="ajuda.html">Ajuda</a></nav></header>
+<main>
+<section class="panel"><h2>Moderação da comunidade</h2><p class="muted">Área restrita. Use estas ferramentas para remover conteúdo abusivo. A exclusão é permanente.</p><p id="status" role="status">Verificando sua conta...</p></section>
+<section class="panel" id="commentsPanel" hidden><h2>Comentários</h2><div id="commentsList">Carregando...</div></section>
+<section class="panel" id="ratingsPanel" hidden><h2>Avaliações por estrelas</h2><div id="ratingsList">Carregando...</div></section>
+<section class="panel" id="quizPanel" hidden><h2>Respostas do quiz</h2><div id="quizList">Carregando...</div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="pz-core.js"></script>
+<script>
+(async()=>{
+const $=id=>document.getElementById(id),db=window.PZ?.getSupabase();
+const status=$('status');
+if(!db){status.textContent='Serviço indisponível.';return;}
+const {data:{session},error:sessionError}=await db.auth.getSession();
+if(sessionError||!session?.user){status.textContent='Entre na sua conta pela página Comunidade para acessar.';return;}
+const {data:role,error:roleError}=await db.from('user_roles').select('role').eq('user_id',session.user.id).maybeSingle();
+if(roleError||role?.role!=='admin'){status.textContent='Acesso negado. Esta página é exclusiva da administração.';return;}
+status.textContent='Acesso administrativo confirmado.';
+['commentsPanel','ratingsPanel','quizPanel'].forEach(id=>$(id).hidden=false);
+function item(container,title,detail,onDelete){
+ const el=document.createElement('article');el.className='item';
+ const left=document.createElement('div'),h=document.createElement('strong'),p=document.createElement('p'),small=document.createElement('div');
+ h.textContent=title;p.textContent=detail;small.className='muted';small.textContent='ID: '+onDelete.id;
+ left.append(h,p,small);
+ const b=document.createElement('button');b.className='danger';b.textContent='Excluir';b.onclick=async()=>{if(!confirm('Excluir este conteúdo permanentemente?'))return;b.disabled=true;const ok=await onDelete.run();if(ok)el.remove();else{b.disabled=false;alert('Não foi possível excluir. Atualize a página e tente novamente.')}};
+ el.append(left,b);container.append(el);
+}
+async function loadComments(){
+ const box=$('commentsList');box.replaceChildren();
+ const {data,error}=await db.from('comentarios').select('id,filme_slug,nome,texto,criado_em,user_id').order('criado_em',{ascending:false}).limit(200);
+ if(error){box.textContent='Erro ao carregar comentários.';return;}
+ if(!data?.length){box.textContent='Nenhum comentário.';return;}
+ data.forEach(r=>item(box,(r.nome||'Cinéfilo')+' · '+r.filme_slug,r.texto+' · '+(r.criado_em||''),{id:r.id,run:async()=>{const {error}=await db.from('comentarios').delete().eq('id',r.id);return !error;}}));
+}
+async function loadRatings(){
+ const box=$('ratingsList');box.replaceChildren();
+ const {data,error}=await db.from('avaliacoes').select('id,filme_slug,nota,criado_em,user_id').order('criado_em',{ascending:false}).limit(200);
+ if(error){box.textContent='Erro ao carregar avaliações.';return;}
+ if(!data?.length){box.textContent='Nenhuma avaliação.';return;}
+ data.forEach(r=>item(box,r.filme_slug+' · '+r.nota+'/5 estrelas','Usuário: '+r.user_id+' · '+(r.criado_em||''),{id:r.id,run:async()=>{const {error}=await db.from('avaliacoes').delete().eq('id',r.id);return !error;}}));
+}
+async function loadQuiz(){
+ const box=$('quizList');box.replaceChildren();
+ const {data,error}=await db.from('pontuacoes_quiz').select('id,user_id,apelido,pontos,pergunta_id,criado_em').order('criado_em',{ascending:false}).limit(200);
+ if(error){box.textContent='Erro ao carregar respostas do quiz.';return;}
+ if(!data?.length){box.textContent='Nenhuma resposta registrada.';return;}
+ data.forEach(r=>item(box,(r.apelido||'Cinéfilo')+' · '+r.pontos+' ponto(s)',r.pergunta_id+' · Usuário: '+r.user_id,{id:r.id,run:async()=>{const {error}=await db.from('pontuacoes_quiz').delete().eq('id',r.id);return !error;}}));
+}
+await Promise.all([loadComments(),loadRatings(),loadQuiz()]);
+})();
+</script>
+<a class="pz-help-float" href="ajuda.html" aria-label="Abrir central de ajuda">✦ <span>Precisa de ajuda?</span></a>
+</body></html>
