@@ -4,7 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ponto Zero | Cinema</title>
+<title>Ponto Zero | Descubra seu próximo filme</title>
+<meta name="description" content="Explore filmes, veja onde assistir, avalie títulos e participe da comunidade Ponto Zero.">
+<meta name="theme-color" content="#0b0b0f">
 
 <style>
 * {
@@ -205,6 +207,7 @@ a.botao,
   <nav>
     <a href="index.html">Início</a>
     <a href="filmes.html">Filmes</a>
+    <a href="onde-assistir.html">Onde assistir</a>
     <a href="comunidade.html">Comunidade</a>
     </nav>
 </header>
@@ -221,24 +224,24 @@ a.botao,
 </section>
 
 <section class="conteudo" id="conteudo">
-  <h2>Melhores avaliados</h2>
+  <h2 id="tituloDestaques">Destaques do Ponto Zero</h2>
   <div class="recomendados-grid">
     <article class="filme-card">
       <a href="detalhes.html?filme=liberdade">
         <img src="https://image.tmdb.org/t/p/w500/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg" alt="Pôster de Um Sonho de Liberdade" loading="lazy">
-        <div class="info"><h3>Um Sonho de Liberdade</h3><p>⭐ Nota 8,7 — Um dos filmes mais bem avaliados pelo público.</p></div>
+        <div class="info"><h3>Um Sonho de Liberdade</h3><p>Um clássico para sua próxima sessão.</p></div>
       </a>
     </article>
     <article class="filme-card">
       <a href="detalhes.html?filme=o-poderoso-chefao">
         <img src="https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg" alt="Pôster de O Poderoso Chefão" loading="lazy">
-        <div class="info"><h3>O Poderoso Chefão</h3><p>⭐ Nota 8,7 — Um clássico frequentemente presente nos rankings de melhores filmes.</p></div>
+        <div class="info"><h3>O Poderoso Chefão</h3><p>Uma história marcante do cinema.</p></div>
       </a>
     </article>
     <article class="filme-card">
       <a href="detalhes.html?filme=a-lista-de-schindler">
         <img src="https://image.tmdb.org/t/p/w500/c8Ass7acuOe4za6DhSattE359gr.jpg" alt="Pôster de A Lista de Schindler" loading="lazy">
-        <div class="info"><h3>A Lista de Schindler</h3><p>⭐ Nota 8,6 — Um drama histórico reconhecido entre os mais bem avaliados.</p></div>
+        <div class="info"><h3>A Lista de Schindler</h3><p>Um drama histórico inesquecível.</p></div>
       </a>
     </article>
   </div>
@@ -255,5 +258,79 @@ a.botao,
   <p>© 2026 Ponto Zero. Todos os direitos reservados.</p>
 </footer>
 
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="pz-core.js?v=1"></script>
+<script src="catalogo-extra.js"></script>
+<script src="posteres.js?v=2"></script>
+<script src="catalogo-1000.js?v=2"></script>
+<script>
+(async function(){
+  "use strict";
+  const area=document.querySelector(".recomendados-grid");
+  const titulo=document.getElementById("tituloDestaques");
+  const db=window.PZ?.getSupabase();
+  if(!area||!db)return;
+  try{
+    const {data,error}=await db.from("avaliacoes").select("filme_slug,nota").limit(1000);
+    if(error)throw error;
+    if(!data?.length)return;
+    const filmes=new Map();
+    (window.catalogo1000||[]).forEach(f=>filmes.set(f.slug,f));
+    (window.filmesExtras||[]).forEach(f=>filmes.set(f[0],{
+      slug:f[0],titulo:f[1],ano:f[2],genero:f[3],
+      poster:(window.posterExtras||{})[f[0]]||""
+    }));
+    const atuais=[...area.querySelectorAll(".filme-card")];
+    atuais.forEach(card=>{
+      const link=card.querySelector("a");
+      const img=card.querySelector("img");
+      const slug=new URL(link.href,location.href).searchParams.get("filme");
+      if(slug&&!filmes.has(slug))filmes.set(slug,{
+        slug,titulo:card.querySelector("h3")?.textContent||slug,
+        poster:img?.src||"",genero:"Cinema"
+      });
+    });
+    const soma=new Map();
+    data.forEach(item=>{
+      const atual=soma.get(item.filme_slug)||{total:0,quantidade:0};
+      atual.total+=Number(item.nota)||0;
+      atual.quantidade++;
+      soma.set(item.filme_slug,atual);
+    });
+    const ranking=[...soma.entries()].map(([slug,x])=>({
+      slug,media:x.total/x.quantidade,quantidade:x.quantidade,filme:filmes.get(slug)
+    })).filter(x=>x.filme).sort((a,b)=>b.media-a.media||b.quantidade-a.quantidade).slice(0,3);
+    if(!ranking.length)return;
+    area.replaceChildren();
+    titulo.textContent="Melhores avaliados pela comunidade";
+    ranking.forEach(item=>{
+      const card=document.createElement("article");
+      card.className="filme-card";
+      const link=document.createElement("a");
+      link.href="detalhes.html?filme="+encodeURIComponent(item.slug);
+      link.style.color="inherit";
+      link.style.textDecoration="none";
+      const img=document.createElement("img");
+      img.src=item.filme.poster||"https://placehold.co/500x750/17171e/e63946?text="+encodeURIComponent(item.filme.titulo);
+      img.alt="Pôster de "+item.filme.titulo;
+      img.loading="lazy";
+      img.onerror=function(){this.onerror=null;this.src="https://placehold.co/500x750/17171e/e63946?text="+encodeURIComponent(item.filme.titulo)};
+      const info=document.createElement("div");
+      info.className="info";
+      const h=document.createElement("h3");
+      h.textContent=item.filme.titulo;
+      const p=document.createElement("p");
+      p.textContent="⭐ "+item.media.toFixed(1).replace(".",",")+" / 5 — "+item.quantidade+" avaliação(ões) da comunidade.";
+      info.append(h,p);
+      link.append(img,info);
+      card.append(link);
+      area.append(card);
+    });
+  }catch(error){
+    console.warn("[Ponto Zero] Não foi possível atualizar os destaques:",error);
+  }
+})();
+</script>
 </body>
 </html>
