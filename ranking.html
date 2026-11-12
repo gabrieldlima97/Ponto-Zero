@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ranking de avaliadores | Ponto Zero</title>
+<meta name="description" content="Veja quem mais avalia filmes na comunidade Ponto Zero. Descubra os cinéfilos mais ativos e participe do ranking.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://ponto-zero.github.io/Ponto-Zero/ranking.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ranking de avaliadores | Ponto Zero">
+<meta property="og:description" content="Os cinéfilos que mais avaliam filmes no Ponto Zero.">
+<meta property="og:url" content="https://ponto-zero.github.io/Ponto-Zero/ranking.html">
+<meta name="theme-color" content="#080b18">
+<link rel="stylesheet" href="espaco.css?v=1">
+<style>
+*{box-sizing:border-box}body{margin:0;color:#f6f7ff;font:16px Arial,sans-serif}header{padding:20px 7%;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid #34314e}header h1{margin:0;font-size:26px}header span{color:#e63946}nav{display:flex;gap:16px;flex-wrap:wrap}nav a{color:#ddd;text-decoration:none}.wrap{width:min(900px,92%);margin:auto;padding:42px 0 70px}.hero,.ranking{background:rgba(16,20,37,.9);border:1px solid rgba(151,164,255,.18);border-radius:16px;padding:24px;margin-bottom:20px}.hero h2{margin:0 0 10px;font-size:clamp(27px,5vw,38px)}.muted{color:#aeb5ca;line-height:1.55}.list{display:grid;gap:12px}.user{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:14px;background:#1b2237;border:1px solid #303b5c;border-radius:12px;padding:14px}.position{font-size:22px;font-weight:bold;color:#b9adff;text-align:center}.name{font-weight:bold}.count{color:#c9c2ff;font-weight:bold}.profile{color:#ff929b;text-decoration:none}.empty{color:#aeb5ca;padding:16px 0}.status{color:#9ca8c4;font-size:13px;margin-top:14px}@media(max-width:520px){.user{grid-template-columns:40px 1fr}.count{grid-column:2}.position{grid-row:span 2}}
+</style>
+</head>
+<body>
+<header><h1>PONTO <span>ZERO.</span></h1><nav><a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="comunidade.html">Comunidade</a><a href="social.html">Amigos</a><a href="ajuda.html">Ajuda</a></nav></header>
+<main class="wrap">
+<section class="hero"><h2>🏆 Quem mais avalia?</h2><p class="muted">Um placar público dos cinéfilos que mais deram notas de 0 a 10 aos filmes. Cada filme avaliado conta uma vez por usuário; atualizar uma nota não aumenta a contagem.</p></section>
+<section class="ranking"><div id="rankingLista" class="list" aria-live="polite"><p class="empty">Carregando ranking...</p></div><p id="status" class="status"></p></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="pz-core.js?v=3"></script>
+<script>
+(async()=>{
+const area=document.getElementById('rankingLista'),status=document.getElementById('status'),db=window.PZ?.getSupabase();
+if(!db){area.textContent='Não foi possível conectar ao ranking. Atualize a página.';return}
+try{
+ const {data,error}=await db.from('ranking_usuarios_avaliacoes').select('user_id,apelido,total_avaliacoes').order('total_avaliacoes',{ascending:false}).order('apelido',{ascending:true}).limit(100);
+ if(error)throw error;
+ area.replaceChildren();
+ if(!data?.length){area.innerHTML='<p class="empty">Ainda não há avaliações de usuários. Entre na sua conta e avalie um filme para aparecer aqui!</p>';return}
+ data.forEach((user,index)=>{
+  const row=document.createElement('article');row.className='user';
+  const pos=document.createElement('div');pos.className='position';pos.textContent=index===0?'🥇':index===1?'🥈':index===2?'🥉':String(index+1);
+  const name=document.createElement('div');name.className='name';
+  const link=document.createElement('a');link.className='profile';link.href='perfil.html?id='+encodeURIComponent(user.user_id);link.textContent=user.apelido||'Cinéfilo';
+  name.append(link);
+  const count=document.createElement('div');count.className='count';count.textContent=Number(user.total_avaliacoes)+' '+(Number(user.total_avaliacoes)===1?'filme avaliado':'filmes avaliados');
+  row.append(pos,name,count);area.append(row);
+ });
+ status.textContent='Ranking atualizado ao abrir esta página. Exibindo até 100 usuários.';
+}catch(error){console.error('[Ponto Zero] Erro no ranking:',error);area.textContent='Não foi possível carregar o placar agora. Tente novamente mais tarde.'}
+})();
+</script>
+<a class="pz-help-float" href="ajuda.html" aria-label="Abrir central de ajuda">✦ <span>Precisa de ajuda?</span></a>
+</body></html>
