@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerador do catálogo | Ponto Zero</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b0b0f;color:#fff;font:16px Arial,sans-serif;padding:28px 18px}main{max-width:760px;margin:auto;background:#17171e;border:1px solid #333;border-radius:14px;padding:26px}h1 span{color:#e63946}p{color:#bbb;line-height:1.6}input{width:100%;padding:13px;margin:8px 0 16px;background:#0b0b0f;border:1px solid #444;border-radius:8px;color:white}button{padding:13px 18px;border:0;border-radius:8px;background:#e63946;color:#fff;font-weight:bold;cursor:pointer}button:disabled{opacity:.5;cursor:wait}#status{margin-top:18px;white-space:pre-line;color:#ddd;line-height:1.6}.barra{height:9px;background:#333;border-radius:9px;overflow:hidden;margin-top:15px}.barra span{display:block;height:100%;width:0;background:#e63946;transition:width .2s}small{color:#999}a{color:#ff858d}
+</style>
+</head>
+<body>
+<main>
+<h1>PONTO <span>ZERO.</span> — Gerador de catálogo</h1>
+<p>Esta ferramenta prepara até 1.000 filmes no total, mantendo os 100 que já existem e buscando os novos no TMDB. Ela inclui pôster, sinopse, ano, gêneros, duração, direção e trailer quando disponível.</p>
+<label for="key">Sua API Key (v3 auth) do TMDB</label>
+<input id="key" type="password" autocomplete="off" placeholder="Cole sua chave aqui">
+<button id="go">Gerar catálogo de 1.000 filmes</button>
+<div class="barra"><span id="progress"></span></div>
+<div id="status">A chave é usada somente nesta página, no seu navegador. Ela não será salva nem incluída no arquivo baixado. O processo pode levar alguns minutos.</div>
+<p><small>Não compartilhe sua chave. Não feche esta página enquanto a geração estiver em andamento. O arquivo gerado não contém a chave.</small></p>
+</main>
+<script src="catalogo-extra.js"></script>
+<script>
+const keyInput=document.getElementById('key');
+const button=document.getElementById('go');
+const statusBox=document.getElementById('status');
+const progress=document.getElementById('progress');
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const genreNames={28:'Ação',12:'Aventura',16:'Animação',35:'Comédia',80:'Crime',99:'Documentário',18:'Drama',10751:'Família',14:'Fantasia',36:'História',27:'Terror',10402:'Musical',9648:'Mistério',10749:'Romance',878:'Ficção científica',10770:'Filme para TV',53:'Suspense',10752:'Guerra',37:'Faroeste'};
+const genreKeys={28:'acao',12:'aventura',16:'animacao',35:'comedia',80:'crime',99:'drama',18:'drama',10751:'aventura',14:'fantasia',36:'drama',27:'terror',10402:'musical',9648:'suspense',10749:'romance',878:'ficcao',10770:'drama',53:'suspense',10752:'drama',37:'aventura'};
+function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+function slugify(s,id){return norm(s).replace(/\s+/g,'-').slice(0,65)+'-tmdb-'+id;}
+async function api(path,key,params={}){
+ const url=new URL('https://api.themoviedb.org/3/'+path);
+ url.searchParams.set('api_key',key);url.searchParams.set('language','pt-BR');
+ Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+ let response=await fetch(url);
+ if(!response.ok)throw new Error('TMDB HTTP '+response.status);
+ return response.json();
+}
+async function carregarExistentes(){
+ const response=await fetch('filmes.html');
+ if(!response.ok)throw new Error('Não consegui ler o catálogo atual do site.');
+ const html=await response.text();
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const existentes=new Set();
+ doc.querySelectorAll('#listaFilmes .card').forEach(card=>{
+   const titulo=card.querySelector('h3')?.textContent||'';
+   const ano=(card.querySelector('.genero')?.textContent||'').match(/\b(19|20)\d{2}\b/)?.[0]||'';
+   existentes.add(norm(titulo)+'|'+ano);
+ });
+ (window.filmesExtras||[]).forEach(f=>existentes.add(norm(f[1])+'|'+f[2]));
+ return existentes;
+}
+function diretorDe(d){return d.credits?.crew?.find(p=>p.job==='Director')?.name||'Não informado';}
+function trailerDe(d){
+ const videos=d.videos?.results||[];
+ const v=videos.find(x=>x.site==='YouTube'&&x.type==='Trailer'&&x.official)||
+         videos.find(x=>x.site==='YouTube'&&x.type==='Trailer')||
+         videos.find(x=>x.site==='YouTube'&&x.type==='Teaser');
+ return v?.key||'';
+}
+button.addEventListener('click',async()=>{
+ const key=keyInput.value.trim();
+ if(!key){statusBox.textContent='Cole sua API Key (v3) para começar.';return;}
+ button.disabled=true;keyInput.disabled=true;progress.style.width='0%';
+ const existentes=await carregarExistentes().catch(e=>{statusBox.textContent=e.message;return null;});
+ if(!existentes){button.disabled=false;keyInput.disabled=false;return;}
+ const candidatos=[],vistos=new Set();
+ try{
+   statusBox.textContent='Etapa 1/2: procurando filmes e evitando repetir os 100 títulos atuais...';
+   for(let pageNum=1;pageNum<=100&&candidatos.length<1500;pageNum++){
+     const data=await api('discover/movie',key,{page:pageNum,sort_by:'popularity.desc',include_adult:false,include_video:false,with_original_language:'en|pt|ja|ko|fr|es|it|de|hi',vote_count_gte:10});
+     for(const m of (data.results||[])){
+       if(!m.poster_path||!m.overview||!m.release_date||!m.genre_ids?.length)continue;
+       const year=Number(m.release_date.slice(0,4));
+       if(!year)continue;
+       const title=m.title||m.original_title||'';
+       const match=norm(title)+'|'+year;
+       if(existentes.has(match)||vistos.has(match))continue;
+       vistos.add(match);candidatos.push(m);
+     }
+     statusBox.textContent='Etapa 1/2: página '+pageNum+' consultada.\nNovos filmes encontrados: '+candidatos.length+' de 900 necessários.';
+     progress.style.width=Math.min(20,Math.round(pageNum/100*20))+'%';
+     if(pageNum>=Number(data.total_pages||0))break;
+     await wait(120);
+   }
+   const escolhidos=candidatos.slice(0,900);
+   if(escolhidos.length<900)throw new Error('O TMDB retornou apenas '+escolhidos.length+' filmes novos com dados suficientes. Tente novamente mais tarde.');
+   const saida=[];
+   for(let i=0;i<escolhidos.length;i++){
+     const m=escolhidos[i];let d={};
+     try{d=await api('movie/'+m.id,key,{append_to_response:'credits,videos'});}catch(e){/* usa os dados da busca se os detalhes falharem */}
+     const ids=m.genre_ids||d.genres?.map(g=>g.id)||[];
+     const generos=ids.map(id=>genreNames[id]).filter(Boolean);
+     const titulo=d.title||m.title||m.original_title;
+     const ano=Number((d.release_date||m.release_date||'').slice(0,4));
+     saida.push({
+       slug:slugify(titulo,m.id),titulo,ano,
+       genero:generos.join(' / ')||'Não informado',
+       categoria:genreKeys[ids[0]]||'drama',
+       duracao:d.runtime?d.runtime+' minutos':'Não informado',
+       poster:'https://image.tmdb.org/t/p/w500'+(d.poster_path||m.poster_path),
+       sinopse:d.overview||m.overview||'Sinopse não disponível.',
+       direcao:diretorDe(d),
+       trailer:trailerDe(d),
+       tmdbId:m.id
+     });
+     const pct=20+Math.round((i+1)/escolhidos.length*80);
+     progress.style.width=pct+'%';
+     statusBox.textContent='Etapa 2/2: completando as fichas dos filmes...\n'+(i+1)+' de 900\nTotal previsto no site: '+(100+i+1)+' filmes.';
+     await wait(220);
+   }
+   const output='// Catálogo adicional do Ponto Zero. Dados obtidos do TMDB.\nwindow.catalogo1000 = '+JSON.stringify(saida,null,2)+';\n';
+   const blob=new Blob([output],{type:'text/javascript;charset=utf-8'});
+   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='catalogo-1000.js';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
+   statusBox.textContent='Concluído! Foram preparados '+saida.length+' filmes novos.\nSomados aos 100 atuais, o catálogo terá 1.000 títulos.\n\nArquivo catalogo-1000.js baixado. Envie esse arquivo aqui na conversa para eu instalar e ativar as páginas, avaliações, comentários, busca e favoritos para todos.';
+   keyInput.value='';
+ }catch(err){statusBox.textContent='Não foi possível concluir: '+err.message+'\nConfira a chave e tente novamente. Se o processo foi interrompido, nenhum arquivo parcial foi instalado.';}
+ finally{button.disabled=false;keyInput.disabled=false;}
+});
+</script>
+</body>
+</html>
