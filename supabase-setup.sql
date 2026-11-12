@@ -147,3 +147,17 @@ grant select, insert, update on public.perfis to authenticated;
 grant select, insert, delete on public.listas_filmes to authenticated;
 grant select on public.votos_batalha, public.pontuacoes_quiz to anon, authenticated;
 grant insert on public.votos_batalha, public.pontuacoes_quiz to authenticated;
+
+-- Rankings calculados no banco: evita baixar milhares de linhas para o navegador.
+create or replace view public.ranking_filmes with (security_invoker = true) as
+select filme_slug, round(avg(nota)::numeric, 2) as media, count(*)::bigint as quantidade
+from public.avaliacoes
+group by filme_slug;
+
+create or replace view public.ranking_quiz with (security_invoker = true) as
+select user_id, max(apelido) as apelido, sum(pontos)::bigint as pontos,
+       count(*)::bigint as respostas
+from public.pontuacoes_quiz
+group by user_id;
+
+grant select on public.ranking_filmes, public.ranking_quiz to anon, authenticated;
