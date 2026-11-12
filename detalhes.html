@@ -366,11 +366,16 @@ Object.assign(filmes, Object.fromEntries((window.catalogo1000||[]).map(f=>[f.slu
 
 const parametros = new URLSearchParams(window.location.search);
 const slug = parametros.get("filme");
-const filme = filmes[slug];
+const filme = Object.prototype.hasOwnProperty.call(filmes, slug) ? filmes[slug] : null;
 
 if (!filme) {
-    document.querySelector("main").innerHTML =
-        "<h1>Filme não encontrado</h1><p><a href='filmes.html'>Voltar ao catálogo</a></p>";
+    document.title = "Filme não encontrado | Ponto Zero";
+    document.getElementById("titulo").textContent = "Filme não encontrado";
+    document.getElementById("sinopse").textContent = "Não encontramos esse título no catálogo. Volte à lista de filmes e escolha outro.";
+    document.getElementById("poster").hidden = true;
+    document.getElementById("botaoPlataformas").hidden = true;
+    document.getElementById("areaTrailer").hidden = true;
+    document.getElementById("trailerIndisponivel").hidden = true;
 } else {
     document.title = filme.titulo + " | Ponto Zero";
     document.getElementById("botaoPlataformas").href = "onde-assistir.html#" + encodeURIComponent(slug);
