@@ -283,10 +283,11 @@ revoke all on function private.is_admin() from public, anon;
 grant usage on schema private to authenticated;
 grant execute on function private.is_admin() to authenticated;
 
--- Promote the original project owner's account.
-insert into public.user_roles(user_id,role)
-values ('dd496771-42af-4f48-9b9a-37c8b293ff92'::uuid,'admin')
-on conflict (user_id) do update set role='admin';
+-- After the owner account exists, assign the owner role manually in the SQL editor:
+-- insert into public.user_roles(user_id,role)
+-- select id,'admin' from auth.users where lower(email)=lower('<owner-email>')
+-- on conflict(user_id) do update set role='admin';
+-- Never expose a service-role key or allow users to edit this table.
 
 alter table public.avaliacoes add column if not exists user_id uuid references auth.users(id) on delete cascade;
 alter table public.avaliacoes alter column user_id set not null;
@@ -424,3 +425,25 @@ begin
 end; $$;
 revoke all on function public.consume_help_rate_limit(text) from public,anon,authenticated;
 grant execute on function public.consume_help_rate_limit(text) to service_role;
+
+-- Daily attempt key prevents repeated points for the same question on the same day.
+create or replace function public.responder_quiz(p_pergunta_id text,p_resposta smallint)
+returns table(correta boolean,pontos integer,ja_respondida boolean)
+language plpgsql security definer set search_path = ''
+as $$
+declare
+ v_user uuid:=auth.uid(); v_resposta smallint; v_apelido text; v_rows integer;
+ v_attempt_id text:=p_pergunta_id||':'||to_char(current_date,'YYYY-MM-DD');
+begin
+ if v_user is null then raise exception 'Entre na sua conta para registrar sua resposta.'; end if;
+ select q.resposta into v_resposta from public.quiz_perguntas q where q.id=p_pergunta_id;
+ if not found then raise exception 'Pergunta inválida.'; end if;
+ if p_resposta is null or p_resposta<0 or p_resposta>2 then raise exception 'Resposta inválida.'; end if;
+ select coalesce(nullif(trim(p.apelido),''),'Cinéfilo') into v_apelido from public.perfis p where p.user_id=v_user;
+ insert into public.pontuacoes_quiz(user_id,apelido,pontos,pergunta_id)
+ values(v_user,coalesce(v_apelido,'Cinéfilo'),case when p_resposta=v_resposta then 1 else 0 end,v_attempt_id)
+ on conflict(user_id,pergunta_id) do nothing;
+ get diagnostics v_rows=row_count;
+ if v_rows=0 then return query select false,0,true;
+ else return query select p_resposta=v_resposta,case when p_resposta=v_resposta then 1 else 0 end,false; end if;
+end; $$;
