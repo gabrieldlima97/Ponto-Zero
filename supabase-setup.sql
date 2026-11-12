@@ -256,3 +256,171 @@ grant select on public.ranking_notas_usuarios to anon, authenticated;
 do $$ begin alter publication supabase_realtime add table public.mensagens; exception when duplicate_object then null; when undefined_object then null; end $$;
 
 grant usage, select on sequence public.solicitacoes_amizade_id_seq, public.mensagens_id_seq to authenticated;
+
+
+-- ============================================================
+-- HARDENING ADD-ON (production roles, moderation and quiz RPC)
+-- Also applied to the live Supabase project.
+-- ============================================================
+create schema if not exists private;
+
+create table if not exists public.user_roles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  role text not null check (role in ('admin','moderator')),
+  created_at timestamptz not null default now()
+);
+alter table public.user_roles enable row level security;
+revoke all on public.user_roles from anon, authenticated;
+grant select on public.user_roles to authenticated;
+drop policy if exists "Users can read their own role" on public.user_roles;
+create policy "Users can read their own role" on public.user_roles
+  for select to authenticated using ((select auth.uid()) = user_id);
+
+create or replace function private.is_admin()
+returns boolean language sql stable security definer set search_path = ''
+as $$ select exists (select 1 from public.user_roles r where r.user_id=(select auth.uid()) and r.role='admin'); $$;
+revoke all on function private.is_admin() from public, anon;
+grant usage on schema private to authenticated;
+grant execute on function private.is_admin() to authenticated;
+
+-- Promote the original project owner's account.
+insert into public.user_roles(user_id,role)
+values ('dd496771-42af-4f48-9b9a-37c8b293ff92'::uuid,'admin')
+on conflict (user_id) do update set role='admin';
+
+alter table public.avaliacoes add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.avaliacoes alter column user_id set not null;
+create unique index if not exists avaliacoes_user_filme_unique on public.avaliacoes(user_id,filme_slug);
+drop policy if exists "Visitantes podem avaliar" on public.avaliacoes;
+drop policy if exists "Ratings: insert own" on public.avaliacoes;
+drop policy if exists "Ratings: update own" on public.avaliacoes;
+drop policy if exists "Ratings: delete own" on public.avaliacoes;
+drop policy if exists "Admins can delete ratings" on public.avaliacoes;
+create policy "Ratings: insert own" on public.avaliacoes for insert to authenticated with check ((select auth.uid())=user_id);
+create policy "Ratings: update own" on public.avaliacoes for update to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
+create policy "Ratings: delete own" on public.avaliacoes for delete to authenticated using ((select auth.uid())=user_id);
+create policy "Admins can delete ratings" on public.avaliacoes for delete to authenticated using ((select private.is_admin()));
+revoke insert,update,delete on public.avaliacoes from anon;
+grant select on public.avaliacoes to anon,authenticated;
+grant insert,update,delete on public.avaliacoes to authenticated;
+
+alter table public.comentarios add column if not exists user_id uuid references auth.users(id) on delete set null;
+drop policy if exists "Visitantes podem comentar" on public.comentarios;
+drop policy if exists "Comments: insert authenticated" on public.comentarios;
+drop policy if exists "Comments: delete own" on public.comentarios;
+drop policy if exists "Admins can delete comments" on public.comentarios;
+create policy "Comments: insert authenticated" on public.comentarios for insert to authenticated with check ((select auth.uid())=user_id);
+create policy "Comments: delete own" on public.comentarios for delete to authenticated using ((select auth.uid())=user_id);
+create policy "Admins can delete comments" on public.comentarios for delete to authenticated using ((select private.is_admin()));
+revoke insert,update,delete on public.comentarios from anon;
+grant select on public.comentarios to anon,authenticated;
+grant insert,delete on public.comentarios to authenticated;
+
+create or replace function private.enforce_comment_rate_limit()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+declare recent_count integer;
+begin
+ select count(*) into recent_count from public.comentarios c
+ where c.user_id=new.user_id and c.criado_em>now()-interval '10 minutes';
+ if recent_count>=3 then raise exception 'Limite de comentários atingido. Aguarde alguns minutos.'; end if;
+ return new;
+end; $$;
+revoke all on function private.enforce_comment_rate_limit() from public,anon,authenticated;
+drop trigger if exists enforce_comment_rate_limit on public.comentarios;
+create trigger enforce_comment_rate_limit before insert on public.comentarios
+for each row execute function private.enforce_comment_rate_limit();
+
+create or replace function private.set_comment_author_name()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+declare v_name text;
+begin
+ select coalesce(nullif(trim(p.apelido),''),'Cinéfilo') into v_name
+ from public.perfis p where p.user_id=new.user_id;
+ new.nome:=coalesce(v_name,'Cinéfilo');
+ return new;
+end; $$;
+revoke all on function private.set_comment_author_name() from public,anon,authenticated;
+drop trigger if exists set_comment_author_name on public.comentarios;
+create trigger set_comment_author_name before insert on public.comentarios
+for each row execute function private.set_comment_author_name();
+
+create table if not exists public.quiz_perguntas (
+ id text primary key, pergunta text not null, opcoes jsonb not null,
+ resposta smallint not null check (resposta between 0 and 2)
+);
+alter table public.quiz_perguntas enable row level security;
+revoke all on public.quiz_perguntas from anon,authenticated;
+insert into public.quiz_perguntas(id,pergunta,opcoes,resposta) values
+ ('espaco','Qual destes filmes se passa principalmente no espaço?','["Interestelar","O Poderoso Chefão","Parasita"]'::jsonb,0),
+ ('titanic','Quem dirigiu Titanic (1997)?','["Christopher Nolan","James Cameron","Steven Spielberg"]'::jsonb,1),
+ ('panem','Qual é o planeta fictício de Jogos Vorazes?','["Duna","Pandora","Panem"]'::jsonb,2),
+ ('vader','Em qual saga aparece o personagem Darth Vader?','["Star Wars","Matrix","Gladiador"]'::jsonb,0),
+ ('pixar','Qual destes é um filme de animação da Pixar?','["Whiplash","Ratatouille","Coringa"]'::jsonb,1)
+on conflict(id) do update set pergunta=excluded.pergunta,opcoes=excluded.opcoes,resposta=excluded.resposta;
+create or replace view public.quiz_perguntas_public as select id,pergunta,opcoes from public.quiz_perguntas;
+grant select on public.quiz_perguntas_public to anon,authenticated;
+
+alter table public.pontuacoes_quiz add column if not exists pergunta_id text;
+alter table public.pontuacoes_quiz alter column pergunta_id set not null;
+create unique index if not exists quiz_one_answer_per_question on public.pontuacoes_quiz(user_id,pergunta_id);
+drop policy if exists "Quiz: inserir própria pontuação" on public.pontuacoes_quiz;
+drop policy if exists "Admins can delete quiz scores" on public.pontuacoes_quiz;
+create policy "Admins can delete quiz scores" on public.pontuacoes_quiz for delete to authenticated using ((select private.is_admin()));
+revoke insert,update on public.pontuacoes_quiz from anon,authenticated;
+grant select on public.pontuacoes_quiz to anon,authenticated;
+grant delete on public.pontuacoes_quiz to authenticated;
+
+create or replace function public.responder_quiz(p_pergunta_id text,p_resposta smallint)
+returns table(correta boolean,pontos integer,ja_respondida boolean)
+language plpgsql security definer set search_path = ''
+as $$
+declare v_user uuid:=auth.uid(); v_resposta smallint; v_apelido text; v_rows integer;
+begin
+ if v_user is null then raise exception 'Entre na sua conta para registrar sua resposta.'; end if;
+ select q.resposta into v_resposta from public.quiz_perguntas q where q.id=p_pergunta_id;
+ if not found then raise exception 'Pergunta inválida.'; end if;
+ if p_resposta is null or p_resposta<0 or p_resposta>2 then raise exception 'Resposta inválida.'; end if;
+ select coalesce(nullif(trim(p.apelido),''),'Cinéfilo') into v_apelido from public.perfis p where p.user_id=v_user;
+ insert into public.pontuacoes_quiz(user_id,apelido,pontos,pergunta_id)
+ values(v_user,coalesce(v_apelido,'Cinéfilo'),case when p_resposta=v_resposta then 1 else 0 end,p_pergunta_id)
+ on conflict(user_id,pergunta_id) do nothing;
+ get diagnostics v_rows=row_count;
+ if v_rows=0 then return query select false,0,true;
+ else return query select p_resposta=v_resposta,case when p_resposta=v_resposta then 1 else 0 end,false; end if;
+end; $$;
+revoke all on function public.responder_quiz(text,smallint) from public,anon;
+grant execute on function public.responder_quiz(text,smallint) to authenticated;
+
+create or replace view public.ranking_quiz with (security_invoker=true) as
+select user_id,max(apelido) as apelido,sum(pontos)::bigint as pontos,count(*)::bigint as respostas
+from public.pontuacoes_quiz group by user_id;
+grant select on public.ranking_quiz to anon,authenticated;
+
+create or replace view public.ranking_usuarios_avaliacoes with (security_invoker=true) as
+select p.user_id,coalesce(nullif(trim(p.apelido),''),'Cinéfilo') as apelido,count(a.filme_slug)::bigint as total_avaliacoes
+from public.perfis p join public.avaliacoes_usuarios a on a.user_id=p.user_id group by p.user_id,p.apelido;
+grant select on public.ranking_usuarios_avaliacoes to anon,authenticated;
+
+create table if not exists private.help_rate_limits (
+ fingerprint text primary key, window_started_at timestamptz not null default now(),
+ request_count integer not null default 0
+);
+alter table private.help_rate_limits enable row level security;
+revoke all on private.help_rate_limits from public,anon,authenticated;
+create or replace function public.consume_help_rate_limit(p_fingerprint text)
+returns boolean language plpgsql security definer set search_path = ''
+as $$
+declare v_count integer;
+begin
+ if p_fingerprint is null or length(p_fingerprint)<32 or length(p_fingerprint)>128 then return false; end if;
+ insert into private.help_rate_limits(fingerprint,window_started_at,request_count) values(p_fingerprint,now(),1)
+ on conflict(fingerprint) do update set
+ request_count=case when private.help_rate_limits.window_started_at<now()-interval '10 minutes' then 1 else private.help_rate_limits.request_count+1 end,
+ window_started_at=case when private.help_rate_limits.window_started_at<now()-interval '10 minutes' then now() else private.help_rate_limits.window_started_at end
+ returning request_count into v_count;
+ return v_count<=12;
+end; $$;
+revoke all on function public.consume_help_rate_limit(text) from public,anon,authenticated;
+grant execute on function public.consume_help_rate_limit(text) to service_role;
