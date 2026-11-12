@@ -619,7 +619,9 @@ if (!filme) {
             await carregarComentarios();
             mensagem.textContent="Opinião publicada para todos os visitantes!";
         }catch(error){
-            mensagem.textContent="Não foi possível publicar. Verifique sua conexão e tente novamente.";
+            mensagem.textContent=error?.message?.includes("Limite de comentários")
+                ? "Você atingiu o limite de 3 opiniões a cada 10 minutos. Aguarde um pouco."
+                : "Não foi possível publicar. Verifique sua conexão e tente novamente.";
             console.error("[Ponto Zero] Erro ao publicar comentário:",error);
         }finally{
             botaoEnviar.disabled=false;
