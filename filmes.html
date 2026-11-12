@@ -666,7 +666,7 @@ footer{text-align:center;padding:30px;color:#777;border-top:1px solid #292930;ma
   <p class="aviso">A disponibilidade dos filmes muda conforme o país e a data. Confira a plataforma antes de assinar, alugar ou comprar.</p>
 </main>
 <footer><p>© 2026 Ponto Zero. Todos os direitos reservados.</p></footer>
-<script src="catalogo-1000.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script><script src="pz-core.js?v=1"></script><script src="catalogo-1000.js?v=2"></script>
 <script>
 (function(){
  const lista=document.getElementById("listaFilmes");
@@ -689,6 +689,7 @@ footer{text-align:center;padding:30px;color:#777;border-top:1px solid #292930;ma
 const busca=document.getElementById("busca");
 const botoes=document.querySelectorAll(".filtros button");
 const cards=document.querySelectorAll(".card");
+const ordemOriginal=[...cards];
 const lista=document.getElementById("listaFilmes");
 let generoSelecionado="todos";
 let apenasFavoritos=false;
@@ -696,21 +697,21 @@ const filtroAno=document.getElementById("filtroAno");
 const ordenacao=document.getElementById("ordenacao");
 const anos=[...new Set([...cards].map(c=>{const m=c.querySelector(".genero")?.textContent.match(/\b(19|20)\d{2}\b/);return m?m[0]:null}).filter(Boolean))].sort((a,b)=>b-a);
 anos.forEach(ano=>{const op=document.createElement("option");op.value=ano;op.textContent=ano;filtroAno.appendChild(op)});
-function favoritosSalvos(){try{return JSON.parse(localStorage.getItem("pz-favoritos")||"[]")}catch(e){return []}}
+function favoritosSalvos(){return window.PZ.readFavorites()}
 function filtrarFilmes(){
-  const pesquisa=busca.value.toLowerCase();let encontrados=0;
+  const pesquisa=busca.value.trim().toLocaleLowerCase("pt-BR");let encontrados=0;const favoritos=favoritosSalvos();
   cards.forEach(card=>{
     const nome=card.querySelector("h3").textContent.toLowerCase();
     const link=card.querySelector("a.detalhes");
     const slug=link?new URL(link.href,location.href).searchParams.get("filme"):"";
-    const favorito=favoritosSalvos().includes(slug);
+    const favorito=favoritos.includes(slug);
     const textoGenero=card.querySelector(".genero")?.textContent||"";
     const anoMatch=textoGenero.match(/\b(19|20)\d{2}\b/);
     const mostrar=nome.includes(pesquisa)&&(generoSelecionado==="todos"||card.dataset.genero===generoSelecionado)&&(!apenasFavoritos||favorito)&&(!filtroAno.value||(anoMatch&&anoMatch[0]===filtroAno.value));
     card.style.display=mostrar?"block":"none";if(mostrar)encontrados++;
   });
   const visiveis=[...cards].filter(c=>c.style.display!=="none");
-  if(ordenacao.value!=="padrao"){visiveis.sort((a,b)=>{const na=a.querySelector("h3").textContent;const nb=b.querySelector("h3").textContent;const ya=Number((a.querySelector(".genero")?.textContent.match(/\b(19|20)\d{2}\b/)||[])[0]||0);const yb=Number((b.querySelector(".genero")?.textContent.match(/\b(19|20)\d{2}\b/)||[])[0]||0);return ordenacao.value==="az"?na.localeCompare(nb,"pt-BR"):ordenacao.value==="ano-desc"?yb-ya:ya-yb});visiveis.forEach(c=>lista.appendChild(c));}
+  if(ordenacao.value!=="padrao"){visiveis.sort((a,b)=>{const na=a.querySelector("h3").textContent;const nb=b.querySelector("h3").textContent;const ya=Number((a.querySelector(".genero")?.textContent.match(/\b(19|20)\d{2}\b/)||[])[0]||0);const yb=Number((b.querySelector(".genero")?.textContent.match(/\b(19|20)\d{2}\b/)||[])[0]||0);return ordenacao.value==="az"?na.localeCompare(nb,"pt-BR"):ordenacao.value==="ano-desc"?yb-ya:ya-yb});visiveis.forEach(c=>lista.appendChild(c));}else ordemOriginal.forEach(c=>lista.appendChild(c));
   let mensagem=document.getElementById("semResultados");
   if(encontrados===0&&!mensagem){mensagem=document.createElement("p");mensagem.id="semResultados";mensagem.className="vazio";mensagem.textContent="Nenhum filme encontrado.";lista.appendChild(mensagem);}
   else if(encontrados>0&&mensagem)mensagem.remove();
@@ -747,11 +748,20 @@ botoes.forEach(botao=>botao.addEventListener("click",()=>{
 </style>
 <script>
 (function(){
+  "use strict";
   const lista=document.getElementById("listaFilmes");
   const filtros=document.querySelector(".filtros");
-  if(!lista||!filtros)return;
-  function ler(){try{return JSON.parse(localStorage.getItem("pz-favoritos")||"[]")}catch(e){return []}}
-  function salvar(ids){localStorage.setItem("pz-favoritos",JSON.stringify(ids))}
+  if(!lista||!filtros||!window.PZ)return;
+  const botoesFavoritos=[];
+  function atualizarBotoes(){
+    const ids=window.PZ.readFavorites();
+    botoesFavoritos.forEach(({botao,slug})=>{
+      const salvo=ids.includes(slug);
+      botao.textContent=salvo?"♥ Remover dos favoritos":"♡ Adicionar aos favoritos";
+      botao.classList.toggle("salvo",salvo);
+      botao.setAttribute("aria-pressed",String(salvo));
+    });
+  }
   lista.querySelectorAll(".card").forEach(card=>{
     const link=card.querySelector("a.detalhes");
     const info=card.querySelector(".info");
@@ -760,19 +770,20 @@ botoes.forEach(botao=>botao.addEventListener("click",()=>{
     if(!slug||info.querySelector(".favoritar"))return;
     const botao=document.createElement("button");
     botao.type="button";botao.className="favoritar";
-    function atualizar(){
-      const salvo=ler().includes(slug);
-      botao.textContent=salvo?"♥ Remover dos favoritos":"♡ Adicionar aos favoritos";
-      botao.classList.toggle("salvo",salvo);
-      botao.setAttribute("aria-pressed",String(salvo));
-    }
-    botao.addEventListener("click",()=>{
-      let ids=ler();
-      ids=ids.includes(slug)?ids.filter(id=>id!==slug):[...ids,slug];
-      salvar(ids);atualizar();
-      if(typeof filtrarFilmes==="function")filtrarFilmes();
+    botao.addEventListener("click",async()=>{
+      if(botao.disabled)return;
+      botao.disabled=true;
+      try{
+        await window.PZ.toggleFavorite(slug);
+        atualizarBotoes();
+        if(typeof filtrarFilmes==="function")filtrarFilmes();
+      }catch(error){
+        botao.textContent="Erro ao salvar. Tente novamente";
+        console.error("[Ponto Zero] Falha ao salvar favorito:",error);
+      }finally{botao.disabled=false}
     });
-    info.appendChild(botao);atualizar();
+    info.appendChild(botao);
+    botoesFavoritos.push({botao,slug});
   });
   const filtro=document.createElement("button");
   filtro.id="filtroFavoritos";filtro.type="button";filtro.textContent="♥ Meus favoritos";
@@ -783,6 +794,19 @@ botoes.forEach(botao=>botao.addEventListener("click",()=>{
     if(typeof filtrarFilmes==="function")filtrarFilmes();
   });
   filtros.appendChild(filtro);
+  atualizarBotoes();
+  const sb=window.PZ.getSupabase();
+  if(sb){
+    sb.auth.onAuthStateChange((_event,session)=>{
+      if(session?.user){
+        setTimeout(async()=>{try{await window.PZ.syncFavorites();atualizarBotoes();filtrarFilmes()}catch(error){console.error("[Ponto Zero] Falha ao sincronizar favoritos:",error)}},0);
+      }else{window.PZ.clearPrivateLocalData();atualizarBotoes();filtrarFilmes()}
+    });
+    sb.auth.getSession().then(async({data,error})=>{
+      if(error)throw error;
+      if(data.session?.user){await window.PZ.syncFavorites();atualizarBotoes();filtrarFilmes()}
+    }).catch(error=>console.error("[Ponto Zero] Não foi possível sincronizar a lista:",error));
+  }
 })();
 </script>
 </body>
