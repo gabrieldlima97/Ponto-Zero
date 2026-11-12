@@ -272,7 +272,7 @@ a.botao,
   const db=window.PZ?.getSupabase();
   if(!area||!db)return;
   try{
-    const {data,error}=await db.from("avaliacoes").select("filme_slug,nota").limit(1000);
+    const {data,error}=await db.from("ranking_filmes").select("filme_slug,media,quantidade").order("media",{ascending:false}).order("quantidade",{ascending:false}).limit(3);
     if(error)throw error;
     if(!data?.length)return;
     const filmes=new Map();
@@ -291,16 +291,10 @@ a.botao,
         poster:img?.src||"",genero:"Cinema"
       });
     });
-    const soma=new Map();
-    data.forEach(item=>{
-      const atual=soma.get(item.filme_slug)||{total:0,quantidade:0};
-      atual.total+=Number(item.nota)||0;
-      atual.quantidade++;
-      soma.set(item.filme_slug,atual);
-    });
-    const ranking=[...soma.entries()].map(([slug,x])=>({
-      slug,media:x.total/x.quantidade,quantidade:x.quantidade,filme:filmes.get(slug)
-    })).filter(x=>x.filme).sort((a,b)=>b.media-a.media||b.quantidade-a.quantidade).slice(0,3);
+    const ranking=(data||[]).map(item=>({
+      slug:item.filme_slug,media:Number(item.media),quantidade:Number(item.quantidade),
+      filme:filmes.get(item.filme_slug)
+    })).filter(item=>item.filme);
     if(!ranking.length)return;
     area.replaceChildren();
     titulo.textContent="Melhores avaliados pela comunidade";
