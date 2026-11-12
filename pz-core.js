@@ -99,7 +99,7 @@
         const query = supabase.from("listas_filmes");
         const result = removing
           ? await query.delete().eq("user_id", session.user.id).eq("filme_slug", slug)
-          : await query.insert({ user_id: session.user.id, filme_slug: slug });
+          : await query.upsert({ user_id: session.user.id, filme_slug: slug }, { onConflict: "user_id,filme_slug", ignoreDuplicates: true });
         if (result.error) throw result.error;
       }
     }
