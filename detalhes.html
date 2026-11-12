@@ -481,6 +481,22 @@ if (!filme) {
         return;
     }
 
+    const {data:{session}}=await db.auth.getSession();
+    const usuario=session?.user||null;
+    let apelidoUsuario="Cinéfilo";
+    if(usuario){
+        const {data:perfil}=await db.from("perfis").select("apelido").eq("user_id",usuario.id).maybeSingle();
+        apelidoUsuario=perfil?.apelido||usuario.email?.split("@")[0]||"Cinéfilo";
+        campoNome.value=apelidoUsuario;
+        campoNome.readOnly=true;
+    }else{
+        notaTexto.textContent="Entre na sua conta pela Comunidade para avaliar este filme.";
+        mensagem.textContent="Entre na sua conta para publicar uma opinião.";
+        campoNome.disabled=true;
+        campoTexto.disabled=true;
+        botaoEnviar.disabled=true;
+    }
+    botoesEstrelas.forEach(b=>b.disabled=!usuario);
     let notaAtual=0;
     let comentarios=[];
 
@@ -558,7 +574,11 @@ if (!filme) {
             botoesEstrelas.forEach(b=>b.disabled=true);
             notaTexto.textContent="Enviando sua avaliação...";
             try{
-                const {error}=await db.from("avaliacoes").insert({filme_slug:slug,nota:notaAtual});
+                if(!usuario)throw new Error("Entre na sua conta para avaliar.");
+                const {error}=await db.from("avaliacoes").upsert(
+                    {user_id:usuario.id,filme_slug:slug,nota:notaAtual},
+                    {onConflict:"user_id,filme_slug"}
+                );
                 if(error)throw error;
                 await carregarAvaliacoes();
             }catch(error){
@@ -576,7 +596,8 @@ if (!filme) {
 
     botaoEnviar.addEventListener("click",async()=>{
         const texto=campoTexto.value.trim();
-        const nome=(campoNome.value.trim()||"Visitante").slice(0,30);
+        if(!usuario){mensagem.textContent="Entre na sua conta pela Comunidade para publicar uma opinião.";return}
+        const nome=apelidoUsuario.slice(0,30);
         mensagem.textContent="";
         if(!texto){
             mensagem.textContent="Escreva sua opinião antes de publicar.";
@@ -591,7 +612,7 @@ if (!filme) {
         botaoEnviar.disabled=true;
         botaoEnviar.textContent="Publicando...";
         try{
-            const {error}=await db.from("comentarios").insert({filme_slug:slug,nome,texto});
+            const {error}=await db.from("comentarios").insert({user_id:usuario.id,filme_slug:slug,nome,texto});
             if(error)throw error;
             campoTexto.value="";
             contador.textContent="0/500";
