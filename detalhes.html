@@ -244,7 +244,7 @@ footer {
     © 2026 Ponto Zero. Todos os direitos reservados.
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script><script src="pz-core.js?v=1"></script>
 <script src="catalogo-extra.js"></script>
 <script src="posteres.js?v=2"></script>
 <script src="catalogo-1000.js?v=1"></script>
@@ -385,13 +385,17 @@ if (!filme) {
     imagemPoster.src = filme.poster || ("https://placehold.co/500x750/17171e/e63946?text=" + encodeURIComponent(filme.titulo));
     document.getElementById("sinopse").textContent = filme.sinopse;
     document.getElementById("direcao").textContent = filme.direcao;
-    document.getElementById("etiquetas").innerHTML =
-        `<span class="etiqueta">${filme.genero}</span>
-         <span class="etiqueta">${filme.ano}</span>
-         <span class="etiqueta">${filme.duracao}</span>`;
+    const etiquetas = document.getElementById("etiquetas");
+    etiquetas.replaceChildren();
+    [filme.genero, filme.ano, filme.duracao].filter(Boolean).forEach(valor => {
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "etiqueta";
+        etiqueta.textContent = String(valor);
+        etiquetas.appendChild(etiqueta);
+    });
 
     if (filme.trailer) {
-        document.getElementById("trailer").src = "https://www.youtube.com/embed/" + filme.trailer;
+        document.getElementById("trailer").src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(filme.trailer);
     } else {
         document.getElementById("areaTrailer").style.display = "none";
         document.getElementById("trailerIndisponivel").style.display = "block";
@@ -402,150 +406,165 @@ if (!filme) {
 }
 
 // Avaliações e comentários compartilhados pelo Supabase.
-const supabaseClient = window.supabase.createClient(
-    "https://fkeayqbvmifdzsiskqno.supabase.co",
-    "sb_publishable_6MqEvatKcbWY3gfwDAglBA_jftIs8ty"
-);
-
-const botoesEstrelas = document.querySelectorAll(".estrelas button");
-let notaAtual = 0;
-let comentarios = [];
-
-function atualizarEstrelas() {
-    botoesEstrelas.forEach(botao => {
-        const selecionada = Number(botao.dataset.nota) <= notaAtual;
-        botao.classList.toggle("selecionada", selecionada);
-        botao.setAttribute("aria-pressed", String(Number(botao.dataset.nota) === notaAtual));
-    });
-    document.getElementById("notaTexto").textContent = notaAtual
-        ? "Sua avaliação: " + notaAtual + " de 5 estrelas."
-        : "Escolha uma nota para este filme.";
-}
-
-async function carregarAvaliacoes() {
-    const texto = document.getElementById("notaTexto");
-    const { data, error } = await supabaseClient
-        .from("avaliacoes")
-        .select("nota")
-        .eq("filme_slug", slug);
-    if (error) {
-        texto.textContent = "Não foi possível carregar as avaliações agora.";
-        console.error("Erro ao carregar avaliações:", error);
+(async function iniciarInteracoes(){
+    "use strict";
+    const notaTexto=document.getElementById("notaTexto");
+    const mensagem=document.getElementById("mensagemComentario");
+    const botoesEstrelas=[...document.querySelectorAll(".estrelas button")];
+    const campoNome=document.getElementById("nomeComentario");
+    const campoTexto=document.getElementById("textoComentario");
+    const contador=document.getElementById("contadorComentario");
+    const botaoEnviar=document.getElementById("enviar");
+    const lista=document.getElementById("listaComentarios");
+    if(!slug||!filme){
+        notaTexto.textContent="As avaliações estarão disponíveis quando um filme válido for selecionado.";
+        mensagem.textContent="Escolha um filme do catálogo para participar.";
+        botoesEstrelas.forEach(b=>b.disabled=true);
+        botaoEnviar.disabled=true;
         return;
     }
-    if (!data.length) {
-        texto.textContent = "Este filme ainda não recebeu avaliações.";
+
+    const db=window.PZ?.getSupabase();
+    if(!db){
+        notaTexto.textContent="Serviço de avaliações indisponível. Atualize a página.";
+        mensagem.textContent="Serviço de comentários indisponível no momento.";
+        botoesEstrelas.forEach(b=>b.disabled=true);
+        botaoEnviar.disabled=true;
         return;
     }
-    const media = data.reduce((soma, item) => soma + item.nota, 0) / data.length;
-    texto.textContent = "Média da comunidade: " + media.toFixed(1).replace(".", ",") +
-        " de 5 estrelas (" + data.length + (data.length === 1 ? " avaliação)." : " avaliações).");
-}
 
-botoesEstrelas.forEach(botao => {
-    botao.addEventListener("click", async () => {
-        notaAtual = Number(botao.dataset.nota);
-        atualizarEstrelas();
-        const { error } = await supabaseClient.from("avaliacoes").insert({
-            filme_slug: slug,
-            nota: notaAtual
+    let notaAtual=0;
+    let comentarios=[];
+
+    function atualizarEstrelas(){
+        botoesEstrelas.forEach(botao=>{
+            const valor=Number(botao.dataset.nota);
+            botao.classList.toggle("selecionada",valor<=notaAtual);
+            botao.setAttribute("aria-pressed",String(valor===notaAtual));
         });
-        if (error) {
-            document.getElementById("notaTexto").textContent = "Não foi possível publicar sua nota. Tente novamente.";
-            console.error("Erro ao salvar avaliação:", error);
+    }
+
+    async function carregarAvaliacoes(){
+        notaTexto.textContent="Carregando média da comunidade...";
+        const {data,error}=await db.from("avaliacoes")
+            .select("nota").eq("filme_slug",slug).limit(1000);
+        if(error)throw error;
+        if(!data?.length){
+            notaTexto.textContent="Este filme ainda não recebeu avaliações.";
             return;
         }
-        await carregarAvaliacoes();
-    });
-});
-
-const campoNome = document.getElementById("nomeComentario");
-const campoTexto = document.getElementById("textoComentario");
-const contador = document.getElementById("contadorComentario");
-const mensagem = document.getElementById("mensagemComentario");
-
-function mostrarComentarios() {
-    const lista = document.getElementById("listaComentarios");
-    lista.replaceChildren();
-    if (!comentarios.length) {
-        const vazio = document.createElement("p");
-        vazio.className = "vazio-comentarios";
-        vazio.textContent = "Ainda não há opiniões para este filme. Seja o primeiro!";
-        lista.appendChild(vazio);
-        return;
+        const media=data.reduce((soma,item)=>soma+Number(item.nota||0),0)/data.length;
+        notaTexto.textContent="Média da comunidade: "+media.toFixed(1).replace(".",",")+
+            " de 5 estrelas ("+data.length+(data.length===1?" avaliação).":" avaliações).");
     }
-    comentarios.forEach(comentario => {
-        const card = document.createElement("article");
-        card.className = "comentario";
-        const cabecalho = document.createElement("div");
-        cabecalho.className = "comentario-cabecalho";
-        const nome = document.createElement("strong");
-        nome.textContent = comentario.nome || "Visitante";
-        cabecalho.appendChild(nome);
-        if (comentario.criado_em) {
-            const data = document.createElement("time");
-            data.textContent = new Date(comentario.criado_em).toLocaleString("pt-BR");
-            cabecalho.appendChild(data);
+
+    function mostrarComentarios(){
+        lista.replaceChildren();
+        if(!comentarios.length){
+            const vazio=document.createElement("p");
+            vazio.className="vazio-comentarios";
+            vazio.textContent="Ainda não há opiniões para este filme. Seja o primeiro!";
+            lista.appendChild(vazio);
+            return;
         }
-        const texto = document.createElement("p");
-        texto.textContent = comentario.texto || "";
-        card.append(cabecalho, texto);
-        lista.appendChild(card);
+        comentarios.forEach(comentario=>{
+            const card=document.createElement("article");
+            card.className="comentario";
+            const cabecalho=document.createElement("div");
+            cabecalho.className="comentario-cabecalho";
+            const nome=document.createElement("strong");
+            nome.textContent=comentario.nome||"Visitante";
+            cabecalho.appendChild(nome);
+            if(comentario.criado_em){
+                const data=document.createElement("time");
+                const dataComentario=new Date(comentario.criado_em);
+                data.dateTime=dataComentario.toISOString();
+                data.textContent=Number.isNaN(dataComentario.getTime())?"":dataComentario.toLocaleString("pt-BR");
+                cabecalho.appendChild(data);
+            }
+            const texto=document.createElement("p");
+            texto.textContent=comentario.texto||"";
+            card.append(cabecalho,texto);
+            lista.appendChild(card);
+        });
+    }
+
+    async function carregarComentarios(){
+        mensagem.textContent="Carregando opiniões...";
+        const {data,error}=await db.from("comentarios")
+            .select("nome,texto,criado_em")
+            .eq("filme_slug",slug)
+            .order("criado_em",{ascending:false})
+            .limit(100);
+        if(error)throw error;
+        comentarios=data||[];
+        mostrarComentarios();
+        mensagem.textContent="";
+    }
+
+    botoesEstrelas.forEach(botao=>{
+        botao.addEventListener("click",async()=>{
+            if(botao.disabled)return;
+            notaAtual=Number(botao.dataset.nota);
+            atualizarEstrelas();
+            botoesEstrelas.forEach(b=>b.disabled=true);
+            notaTexto.textContent="Enviando sua avaliação...";
+            try{
+                const {error}=await db.from("avaliacoes").insert({filme_slug:slug,nota:notaAtual});
+                if(error)throw error;
+                await carregarAvaliacoes();
+            }catch(error){
+                notaTexto.textContent="Não foi possível publicar sua nota. Tente novamente.";
+                console.error("[Ponto Zero] Erro ao salvar avaliação:",error);
+            }finally{
+                botoesEstrelas.forEach(b=>b.disabled=false);
+            }
+        });
     });
-}
 
-async function carregarComentarios() {
-    const { data, error } = await supabaseClient
-        .from("comentarios")
-        .select("nome,texto,criado_em")
-        .eq("filme_slug", slug)
-        .order("criado_em", { ascending: false });
-    if (error) {
-        mensagem.textContent = "Não foi possível carregar as opiniões agora.";
-        console.error("Erro ao carregar comentários:", error);
-        return;
-    }
-    comentarios = data || [];
-    mostrarComentarios();
-}
-
-campoTexto.addEventListener("input", () => {
-    contador.textContent = campoTexto.value.length + "/500";
-});
-
-document.getElementById("enviar").addEventListener("click", async () => {
-    const texto = campoTexto.value.trim();
-    const nome = campoNome.value.trim().slice(0, 30) || "Visitante";
-    mensagem.textContent = "";
-    if (!texto) {
-        mensagem.textContent = "Escreva sua opinião antes de publicar.";
-        campoTexto.focus();
-        return;
-    }
-    const botao = document.getElementById("enviar");
-    botao.disabled = true;
-    botao.textContent = "Publicando...";
-    const { error } = await supabaseClient.from("comentarios").insert({
-        filme_slug: slug,
-        nome,
-        texto: texto.slice(0, 500)
+    campoTexto.addEventListener("input",()=>{
+        contador.textContent=campoTexto.value.length+"/500";
     });
-    botao.disabled = false;
-    botao.textContent = "Publicar opinião";
-    if (error) {
-        mensagem.textContent = "Não foi possível publicar. Tente novamente.";
-        console.error("Erro ao publicar comentário:", error);
-        return;
-    }
-    campoTexto.value = "";
-    contador.textContent = "0/500";
-    mensagem.textContent = "Opinião publicada para todos os visitantes!";
-    await carregarComentarios();
-});
 
-atualizarEstrelas();
-carregarAvaliacoes();
-carregarComentarios();
+    botaoEnviar.addEventListener("click",async()=>{
+        const texto=campoTexto.value.trim();
+        const nome=(campoNome.value.trim()||"Visitante").slice(0,30);
+        mensagem.textContent="";
+        if(!texto){
+            mensagem.textContent="Escreva sua opinião antes de publicar.";
+            campoTexto.focus();
+            return;
+        }
+        if(texto.length>500){
+            mensagem.textContent="Sua opinião deve ter no máximo 500 caracteres.";
+            campoTexto.focus();
+            return;
+        }
+        botaoEnviar.disabled=true;
+        botaoEnviar.textContent="Publicando...";
+        try{
+            const {error}=await db.from("comentarios").insert({filme_slug:slug,nome,texto});
+            if(error)throw error;
+            campoTexto.value="";
+            contador.textContent="0/500";
+            await carregarComentarios();
+            mensagem.textContent="Opinião publicada para todos os visitantes!";
+        }catch(error){
+            mensagem.textContent="Não foi possível publicar. Verifique sua conexão e tente novamente.";
+            console.error("[Ponto Zero] Erro ao publicar comentário:",error);
+        }finally{
+            botaoEnviar.disabled=false;
+            botaoEnviar.textContent="Publicar opinião";
+        }
+    });
+
+    try{await Promise.all([carregarAvaliacoes(),carregarComentarios()]);}
+    catch(error){
+        if(!notaTexto.textContent.includes("Não foi possível"))notaTexto.textContent="Não foi possível carregar os dados deste filme.";
+        if(!mensagem.textContent.includes("Não foi possível"))mensagem.textContent="Não foi possível carregar as opiniões agora.";
+        console.error("[Ponto Zero] Erro ao carregar interações:",error);
+    }
+})();
 </script>
 
 </body>
