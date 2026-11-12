@@ -175,6 +175,8 @@ footer {
 .comentario p{margin:0;color:#ddd;white-space:pre-wrap}
 @media(max-width:600px){.rodape-form .botao{width:100%}}
 
+
+.nota-perfil{max-width:800px;margin-top:34px;background:#17171e;border:1px solid #292930;border-radius:10px;padding:20px}.nota-perfil .linha-nota{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0}.nota-perfil select{background:#22222c;color:#fff;border:1px solid #444;border-radius:7px;padding:12px;min-width:130px}.nota-perfil button{background:#e63946;color:#fff;border:0;border-radius:7px;padding:12px 18px;font-weight:bold}.nota-publica{display:grid;gap:9px;margin-top:14px}.nota-publica article{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#22222c;border-radius:8px;padding:12px}.nota-publica a{color:#ff7b84;text-decoration:none}.nota-perfil .muted{color:#aaa}
 </style>
 </head>
 
@@ -224,6 +226,33 @@ footer {
             <button type="button" data-nota="5" aria-label="5 estrelas">★</button>
         </div>
         <p id="notaTexto" aria-live="polite">Você ainda não avaliou este filme.</p>
+    </section>
+
+    <section class="nota-perfil" id="notaPerfil">
+        <h2>🎯 Minha nota no perfil (0 a 10)</h2>
+        <p class="muted">Sua nota fica salva na sua conta e aparece publicamente no seu perfil, para todos os cinéfilos.</p>
+        <div class="linha-nota">
+            <label for="notaDez">Sua nota:</label>
+            <select id="notaDez" aria-label="Escolha uma nota de zero a dez">
+                <option value="">Selecione</option>
+                <option value="0">0 / 10</option>
+                <option value="1">1 / 10</option>
+                <option value="2">2 / 10</option>
+                <option value="3">3 / 10</option>
+                <option value="4">4 / 10</option>
+                <option value="5">5 / 10</option>
+                <option value="6">6 / 10</option>
+                <option value="7">7 / 10</option>
+                <option value="8">8 / 10</option>
+                <option value="9">9 / 10</option>
+                <option value="10">10 / 10</option>
+            </select>
+            <button type="button" id="salvarNotaDez">Salvar nota no meu perfil</button>
+        </div>
+        <p id="statusNotaDez" class="muted" role="status">Entre na sua conta pela Comunidade para avaliar.</p>
+        <h3 class="titulo-lista">Notas da comunidade (0 a 10)</h3>
+        <p id="mediaNotasDez" class="muted">Carregando notas...</p>
+        <div id="listaNotasDez" class="nota-publica"></div>
     </section>
 
     <section class="comentarios">
@@ -570,6 +599,42 @@ if (!filme) {
         if(!mensagem.textContent.includes("Não foi possível"))mensagem.textContent="Não foi possível carregar as opiniões agora.";
         console.error("[Ponto Zero] Erro ao carregar interações:",error);
     }
+})();
+</script>
+
+
+<script>
+(async function(){
+ const db=window.PZ?.getSupabase(),slug=new URLSearchParams(location.search).get('filme');
+ const select=document.getElementById('notaDez'),save=document.getElementById('salvarNotaDez'),status=document.getElementById('statusNotaDez'),avg=document.getElementById('mediaNotasDez'),list=document.getElementById('listaNotasDez');
+ if(!db||!slug||!filme){status.textContent='Sistema de notas indisponível para este filme.';save.disabled=true;return}
+ const {data:{session}}=await db.auth.getSession();const user=session?.user||null;
+ if(!user){status.textContent='Entre na sua conta na página Comunidade para salvar sua nota. As notas publicadas são visíveis para todos os usuários conectados.';save.disabled=true;}
+ else{
+  const {data:mine,error}=await db.from('avaliacoes_usuarios').select('nota').eq('user_id',user.id).eq('filme_slug',slug).maybeSingle();
+  if(error){status.textContent='Não foi possível carregar sua nota.';console.error(error)}else if(mine){select.value=String(mine.nota);status.textContent='Sua nota atual está salva no seu perfil. Você pode alterá-la quando quiser.'}else status.textContent='Você ainda não avaliou este filme.';
+ }
+ async function loadPublic(){
+  const {data,error}=await db.from('avaliacoes_usuarios').select('user_id,nota,atualizado_em').eq('filme_slug',slug).order('atualizado_em',{ascending:false}).limit(100);
+  if(error){avg.textContent='Não foi possível carregar as notas públicas.';console.error(error);return}
+  if(!data?.length){avg.textContent='Ainda não há notas de usuários para este filme.';list.replaceChildren();return}
+  const mean=data.reduce((s,r)=>s+Number(r.nota),0)/data.length;
+  avg.textContent='Média: '+mean.toFixed(1).replace('.',',')+'/10 • '+data.length+' '+(data.length===1?'nota':'notas');
+  const ids=[...new Set(data.map(x=>x.user_id))];
+  const {data:profiles}=await db.from('perfis').select('user_id,apelido').in('user_id',ids);
+  const names=new Map((profiles||[]).map(p=>[p.user_id,p.apelido||'Cinéfilo']));
+  list.replaceChildren();
+  data.forEach(r=>{const article=document.createElement('article');const a=document.createElement('a');a.href='perfil.html?id='+encodeURIComponent(r.user_id);a.textContent=names.get(r.user_id)||'Cinéfilo';const strong=document.createElement('strong');strong.textContent=Number(r.nota).toFixed(1).replace('.',',')+'/10';article.append(a,strong);list.append(article)});
+ }
+ save.addEventListener('click',async()=>{
+  if(!user){status.textContent='Entre na sua conta primeiro.';return}
+  if(select.value===''){status.textContent='Escolha uma nota entre 0 e 10.';return}
+  save.disabled=true;save.textContent='Salvando...';
+  try{const {error}=await db.from('avaliacoes_usuarios').upsert({user_id:user.id,filme_slug:slug,nota:Number(select.value),atualizado_em:new Date().toISOString()},{onConflict:'user_id,filme_slug'});if(error)throw error;status.textContent='Nota salva no seu perfil e publicada para a comunidade!';await loadPublic()}
+  catch(error){status.textContent='Não foi possível salvar sua nota. Verifique se a estrutura do banco foi atualizada.';console.error(error)}
+  finally{save.disabled=false;save.textContent='Salvar nota no meu perfil'}
+ });
+ await loadPublic();
 })();
 </script>
 
