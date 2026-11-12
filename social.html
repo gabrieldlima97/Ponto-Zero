@@ -2,8 +2,9 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Amigos | Ponto Zero</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b0b0f;color:#fff;font:16px Arial,sans-serif}header{padding:22px 8%;background:#111116;border-bottom:1px solid #292930;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}header h1{margin:0}header span{color:#e63946}nav{display:flex;gap:18px;flex-wrap:wrap}a{color:#ff7b84;text-decoration:none}nav a{color:#ddd}.wrap{max-width:1000px;margin:auto;padding:35px 7%}.panel{background:#17171e;border:1px solid #30303a;border-radius:12px;padding:22px;margin:0 0 20px}.panel h2{margin:0 0 12px}.muted,.hint{color:#aaa;line-height:1.5}.row{display:flex;gap:10px;flex-wrap:wrap}.field{flex:1;min-width:180px;padding:12px;background:#20202a;border:1px solid #444;border-radius:7px;color:#fff}button{padding:11px 15px;border:0;border-radius:7px;background:#e63946;color:white;font-weight:bold;cursor:pointer}button.secondary{background:#34343f}button:disabled{opacity:.55;cursor:wait}.list{display:grid;gap:10px;margin-top:14px}.item{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#22222c;border-radius:8px;padding:13px}.item small{display:block;color:#aaa;margin-top:4px}.actions{display:flex;gap:8px;flex-wrap:wrap}.status{color:#f5c542;min-height:20px}.empty{color:#999;padding:10px 0}@media(max-width:600px){.item{align-items:flex-start}.actions{width:100%}.actions button{flex:1}}
-</style></head><body>
-<header><h1>PONTO <span>ZERO.</span></h1><nav><a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="comunidade.html">Comunidade</a><a href="social.html">Amigos</a></nav></header>
+</style><link rel="stylesheet" href="espaco.css?v=1">
+</head><body>
+<header><h1>PONTO <span>ZERO.</span></h1><nav><a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="comunidade.html">Comunidade</a><a href="social.html">Amigos</a><a href="ajuda.html">Ajuda</a></nav></header>
 <main class="wrap">
 <section class="panel"><h2>👥 Encontre cinéfilos</h2><p class="muted">Pesquise pelo apelido de alguém e envie um convite de amizade.</p><div class="row"><input id="busca" class="field" maxlength="30" placeholder="Digite um apelido"><button id="buscar">Buscar pessoas</button></div><div id="resultados" class="list"></div><p id="buscaMsg" class="status" role="status"></p></section>
 <section class="panel"><h2>📨 Convites recebidos</h2><div id="recebidos" class="list">Carregando...</div></section>
@@ -44,4 +45,5 @@ $('resultados').append(item(p.apelido||'Cinéfilo','Perfil público', [action,li
 }
 $('buscar').onclick=buscar;$('busca').addEventListener('keydown',e=>{if(e.key==='Enter')buscar()});await carregar();
 })();
-</script></body></html>
+</script><a class="pz-help-float" href="ajuda.html" aria-label="Abrir central de ajuda">✦ <span>Precisa de ajuda?</span></a>
+</body></html>
