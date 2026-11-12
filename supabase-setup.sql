@@ -192,6 +192,7 @@ create table if not exists public.solicitacoes_amizade (
 );
 create index if not exists solicitacoes_destinatario_status_idx on public.solicitacoes_amizade (destinatario_id, status, criado_em desc);
 create index if not exists solicitacoes_remetente_status_idx on public.solicitacoes_amizade (remetente_id, status, criado_em desc);
+create unique index if not exists solicitacoes_amizade_par_unico_idx on public.solicitacoes_amizade (least(remetente_id, destinatario_id), greatest(remetente_id, destinatario_id));
 
 create table if not exists public.mensagens (
   id bigint generated always as identity primary key,
