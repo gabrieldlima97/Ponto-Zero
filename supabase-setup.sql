@@ -489,3 +489,33 @@ language sql security invoker set search_path = ''
 as $$ select * from private.submit_quiz_answer(p_pergunta_id,p_resposta); $$;
 revoke all on function public.responder_quiz(text,smallint) from public,anon;
 grant execute on function public.responder_quiz(text,smallint) to authenticated;
+
+
+-- Least-privilege table grants. Keep this block after all table/view creation.
+revoke all on all tables in schema public from anon,authenticated;
+grant select on public.avaliacoes,public.comentarios,public.perfis,
+ public.avaliacoes_usuarios,public.votos_batalha,public.pontuacoes_quiz,
+ public.ranking_filmes,public.ranking_quiz,public.ranking_batalha,
+ public.ranking_usuarios_avaliacoes,public.ranking_notas_usuarios
+ to anon,authenticated;
+grant insert,update,delete on public.avaliacoes to authenticated;
+grant insert,delete on public.comentarios to authenticated;
+grant insert,update on public.perfis to authenticated;
+grant select,insert,delete on public.listas_filmes,public.minhas_listas to authenticated;
+grant insert on public.votos_batalha to authenticated;
+grant delete on public.pontuacoes_quiz to authenticated;
+grant insert,update on public.avaliacoes_usuarios to authenticated;
+grant select,insert,delete on public.solicitacoes_amizade to authenticated;
+grant update(status) on public.solicitacoes_amizade to authenticated;
+grant select,insert on public.mensagens to authenticated;
+grant select on public.user_roles to authenticated;
+grant select(id,pergunta,opcoes) on public.quiz_perguntas to anon,authenticated;
+drop policy if exists "Ratings: delete own" on public.avaliacoes;
+drop policy if exists "Admins can delete ratings" on public.avaliacoes;
+create policy "Ratings: owner or admin delete" on public.avaliacoes for delete to authenticated
+ using ((select auth.uid())=user_id or (select private.is_admin()));
+drop policy if exists "Comments: delete own" on public.comentarios;
+drop policy if exists "Admins can delete comments" on public.comentarios;
+create policy "Comments: owner or admin delete" on public.comentarios for delete to authenticated
+ using ((select auth.uid())=user_id or (select private.is_admin()));
+create index if not exists comentarios_user_created_idx on public.comentarios(user_id,criado_em desc);
