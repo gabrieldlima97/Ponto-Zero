@@ -694,7 +694,7 @@ let generoSelecionado="todos";
 let apenasFavoritos=false;
 const filtroAno=document.getElementById("filtroAno");
 const ordenacao=document.getElementById("ordenacao");
-const anos=[...new Set([...cards].map(c=>{const m=c.querySelector(".genero")?.textContent.match(/\\b(19|20)\\d{2}\\b/);return m?m[0]:null}).filter(Boolean))].sort((a,b)=>b-a);
+const anos=[...new Set([...cards].map(c=>{const m=c.querySelector(".genero")?.textContent.match(/\b(19|20)\\d{2}\b/);return m?m[0]:null}).filter(Boolean))].sort((a,b)=>b-a);
 anos.forEach(ano=>{const op=document.createElement("option");op.value=ano;op.textContent=ano;filtroAno.appendChild(op)});
 function favoritosSalvos(){try{return JSON.parse(localStorage.getItem("pz-favoritos")||"[]")}catch(e){return []}}
 function filtrarFilmes(){
@@ -705,12 +705,12 @@ function filtrarFilmes(){
     const slug=link?new URL(link.href,location.href).searchParams.get("filme"):"";
     const favorito=favoritosSalvos().includes(slug);
     const textoGenero=card.querySelector(".genero")?.textContent||"";
-    const anoMatch=textoGenero.match(/\\b(19|20)\\d{2}\\b/);
+    const anoMatch=textoGenero.match(/\b(19|20)\\d{2}\b/);
     const mostrar=nome.includes(pesquisa)&&(generoSelecionado==="todos"||card.dataset.genero===generoSelecionado)&&(!apenasFavoritos||favorito)&&(!filtroAno.value||(anoMatch&&anoMatch[0]===filtroAno.value));
     card.style.display=mostrar?"block":"none";if(mostrar)encontrados++;
   });
   const visiveis=[...cards].filter(c=>c.style.display!=="none");
-  if(ordenacao.value!=="padrao"){visiveis.sort((a,b)=>{const na=a.querySelector("h3").textContent;const nb=b.querySelector("h3").textContent;const ya=Number((a.querySelector(".genero")?.textContent.match(/\\b(19|20)\\d{2}\\b/)||[])[0]||0);const yb=Number((b.querySelector(".genero")?.textContent.match(/\\b(19|20)\\d{2}\\b/)||[])[0]||0);return ordenacao.value==="az"?na.localeCompare(nb,"pt-BR"):ordenacao.value==="ano-desc"?yb-ya:ya-yb});visiveis.forEach(c=>lista.appendChild(c));}
+  if(ordenacao.value!=="padrao"){visiveis.sort((a,b)=>{const na=a.querySelector("h3").textContent;const nb=b.querySelector("h3").textContent;const ya=Number((a.querySelector(".genero")?.textContent.match(/\b(19|20)\\d{2}\b/)||[])[0]||0);const yb=Number((b.querySelector(".genero")?.textContent.match(/\b(19|20)\\d{2}\b/)||[])[0]||0);return ordenacao.value==="az"?na.localeCompare(nb,"pt-BR"):ordenacao.value==="ano-desc"?yb-ya:ya-yb});visiveis.forEach(c=>lista.appendChild(c));}
   let mensagem=document.getElementById("semResultados");
   if(encontrados===0&&!mensagem){mensagem=document.createElement("p");mensagem.id="semResultados";mensagem.className="vazio";mensagem.textContent="Nenhum filme encontrado.";lista.appendChild(mensagem);}
   else if(encontrados>0&&mensagem)mensagem.remove();
