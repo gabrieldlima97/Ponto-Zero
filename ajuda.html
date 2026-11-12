@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Central de ajuda do Ponto Zero: tire dúvidas sobre filmes, avaliações, contas e amizades.">
+<meta name="theme-color" content="#070914">
+<title>Central de ajuda | Ponto Zero</title>
+<style>
+*{box-sizing:border-box}body{margin:0;color:#f6f7ff;font:16px Arial,sans-serif}
+header{padding:20px 7%;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid #34314e}
+header h1{margin:0;font-size:26px}header h1 span{color:#e63946}nav{display:flex;gap:18px;flex-wrap:wrap}nav a{color:#ddd;text-decoration:none}
+.wrap{width:min(1050px,92%);margin:auto;padding:38px 0 70px}
+.hero{text-align:center;padding:42px 20px 32px;border:1px solid rgba(151,164,255,.16);border-radius:20px;background:linear-gradient(135deg,rgba(73,57,137,.3),rgba(21,46,74,.22));box-shadow:0 20px 55px #0003}
+.eyebrow{color:#a99cff;text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:bold}.hero h2{font-size:clamp(30px,5vw,46px);margin:12px 0}.hero p{color:#bfc4d8;line-height:1.6;max-width:650px;margin:0 auto}
+.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr);gap:20px;margin-top:24px}
+.panel{background:rgba(16,20,37,.9);border:1px solid rgba(151,164,255,.16);border-radius:16px;padding:22px;box-shadow:0 14px 36px #0003}
+.panel h3{margin:0 0 14px}.muted{color:#aeb5ca;line-height:1.55}
+.messages{height:330px;overflow:auto;display:flex;flex-direction:column;gap:11px;padding:8px 2px 16px}
+.msg{max-width:88%;padding:12px 14px;border-radius:14px;background:#222941;color:#f4f5ff;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.bot{align-self:flex-start;border:1px solid rgba(155,140,255,.18)}.msg.user{align-self:flex-end;background:#4b4388}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}.quick button,.send button,.chatgpt{border:0;border-radius:9px;padding:10px 13px;background:#51478f;color:#fff;font-weight:bold;cursor:pointer}.quick button{background:#252c45;border:1px solid #434969;font-size:13px}.quick button:hover{border-color:#a99cff}
+.send{display:flex;gap:9px}.send input{flex:1;min-width:0;padding:13px;border-radius:9px;border:1px solid #424967;background:#0c1223;color:white;font:inherit}.send button{padding:0 18px;background:#7665c9}
+.chatgpt{display:block;width:100%;margin-top:12px;text-align:center;text-decoration:none;background:linear-gradient(110deg,#6556b8,#326b8a)}
+.faq{display:grid;gap:10px}.faq details{background:#171e32;border:1px solid #303b5c;border-radius:10px;padding:13px 14px}.faq summary{cursor:pointer;font-weight:bold}.faq p{color:#b9c1d5;line-height:1.55;margin:10px 0 0}
+.privacy{font-size:12px;color:#858fa9;line-height:1.5;margin-top:12px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.messages{height:300px}.send{flex-direction:column}.send button{padding:13px}}
+</style>
+<link rel="stylesheet" href="espaco.css?v=1">
+</head>
+<body>
+<header><h1>PONTO <span>ZERO.</span></h1><nav><a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="comunidade.html">Comunidade</a><a href="social.html">Amigos</a></nav></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">Suporte Ponto Zero</div><h2>Estamos aqui no seu universo. ✦</h2><p>Conte o que aconteceu. Nosso assistente rápido pode orientar sobre as funções do site e, se precisar de uma conversa mais aberta, você pode continuar com o ChatGPT.</p></section>
+<div class="layout">
+<section class="panel"><h3>💬 Assistente de ajuda</h3><p class="muted">Olá! Sou o assistente de suporte do Ponto Zero. Posso ajudar com sua conta, filmes, avaliações, amizades e outras funções.</p>
+<div class="quick" aria-label="Assuntos frequentes"><button type="button" data-topic="conta">Conta e senha</button><button type="button" data-topic="filmes">Encontrar filmes</button><button type="button" data-topic="avaliacao">Avaliações</button><button type="button" data-topic="amigos">Amigos e chat</button><button type="button" data-topic="erro">Problemas no site</button></div>
+<div id="messages" class="messages" role="log" aria-live="polite"><div class="msg bot">Oi! 😊 O que você precisa resolver hoje?</div></div>
+<form id="chatForm" class="send"><input id="question" maxlength="500" autocomplete="off" placeholder="Digite sua dúvida..." aria-label="Sua dúvida" required><button type="submit">Enviar</button></form>
+<p class="privacy">Não envie senhas, códigos de confirmação ou dados bancários. Este assistente responde dúvidas comuns; ele não acessa sua conta nem altera dados.</p>
+<a id="chatgpt" class="chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Continuar atendimento no ChatGPT ↗</a>
+</section>
+<aside class="panel"><h3>📚 Dúvidas frequentes</h3><div class="faq">
+<details><summary>Como crio minha conta?</summary><p>Acesse Comunidade, informe seu e-mail e crie uma senha com pelo menos 8 caracteres. Depois, siga a confirmação por e-mail, se for solicitada.</p></details>
+<details><summary>Como dou nota a um filme?</summary><p>Abra a página do filme. Você pode avaliar de 1 a 5 estrelas e também salvar uma nota pessoal de 0 a 10 no seu perfil.</p></details>
+<details><summary>Como adiciono amigos?</summary><p>Entre na sua conta, abra Amigos, pesquise pelo apelido da pessoa e envie um convite. A outra pessoa precisa aceitar.</p></details>
+<details><summary>Como converso com um amigo?</summary><p>Depois que o convite for aceito, entre em Amigos e escolha Abrir chat ao lado do perfil.</p></details>
+<details><summary>Onde encontro os filmes?</summary><p>Use a página Filmes para pesquisar e filtrar o catálogo. Na página de cada filme você encontra sinopse, trailer e avaliações.</p></details>
+<details><summary>Como vejo onde assistir?</summary><p>Abra Onde assistir ou use o botão de plataformas na página do filme. A disponibilidade pode mudar, então confira no serviço indicado.</p></details>
+</div></aside>
+</div>
+</main>
+<script>
+(function(){
+const $=id=>document.getElementById(id),messages=$('messages'),question=$('question'),chatgpt=$('chatgpt');
+const answers={
+conta:'Para criar uma conta, abra Comunidade e use a área “Conta Ponto Zero”. Informe seu e-mail e uma senha com pelo menos 8 caracteres. Se não conseguir entrar, confira se o e-mail foi confirmado e se digitou a senha corretamente. Nunca compartilhe sua senha com ninguém.',
+filmes:'Abra a aba Filmes para explorar o catálogo. Você pode pesquisar pelo título e usar os filtros disponíveis. Ao clicar em um filme, verá a página com sinopse, trailer, notas e comentários.',
+avaliacao:'Na página de cada filme há duas formas de avaliar: de 1 a 5 estrelas para a média rápida da comunidade e uma nota pessoal de 0 a 10, que fica no seu perfil público quando você está conectado.',
+amigos:'Entre na sua conta e abra Amigos. Pesquise o apelido da pessoa e envie um convite. Quando ela aceitar, vocês aparecem na lista de amigos e o botão Abrir chat fica disponível.',
+erro:'Vamos tentar localizar o problema. Atualize a página e tente novamente. Se continuar, anote qual página estava usando, o que clicou e a mensagem de erro. Não envie senha, códigos ou informações privadas.',
+assistir:'Acesse Onde assistir ou abra a página do filme e clique em “Ver em quais sites assistir”. Os links levam às plataformas para você conferir a disponibilidade atual.'
+};
+function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;messages.append(d);messages.scrollTop=messages.scrollHeight}
+function choose(text){const q=text.toLocaleLowerCase('pt-BR');let key='';if(/senha|conta|login|entrar|cadastro|cadastrar|email|e-mail/.test(q))key='conta';else if(/nota|avali|estrela|10\s*\/\s*10/.test(q))key='avaliacao';else if(/amig|convite|chat|convers/.test(q))key='amigos';else if(/assist|plataforma|netflix|stream/.test(q))key='assistir';else if(/filme|buscar|pesquis|catálogo|catalogo/.test(q))key='filmes';else if(/erro|bug|não funciona|nao funciona|problema|trav/.test(q))key='erro';return key}
+function handoff(){const context=Array.from(messages.querySelectorAll('.msg')).map(x=>(x.classList.contains('user')?'Visitante: ':'Assistente: ')+x.textContent).join('\n');chatgpt.href='https://chatgpt.com/?q='+encodeURIComponent('Você é o suporte do site Ponto Zero, uma comunidade brasileira sobre filmes. Ajude este visitante com paciência e em português. Contexto da conversa:\n'+context+'\nContinue o atendimento e faça uma pergunta objetiva se faltar informação.');}
+function respond(text){const key=choose(text);add(key?answers[key]:'Não encontrei uma resposta específica para essa dúvida na ajuda rápida. Clique em “Continuar atendimento no ChatGPT” para explicar melhor o caso e receber ajuda em uma conversa completa.','bot');handoff()}
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();const text=question.value.trim();if(!text)return;add(text,'user');question.value='';respond(text)});
+document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.topic;add(b.textContent,'user');respond(key==='erro'?'Estou com um erro no site':key==='avaliacao'?'Como faço uma avaliação?':key==='amigos'?'Como adiciono amigos e converso?':key==='filmes'?'Como encontro filmes?':'Como crio minha conta?')}));
+handoff();
+})();
+</script>
+</body></html>
