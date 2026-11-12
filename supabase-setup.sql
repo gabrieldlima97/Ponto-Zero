@@ -160,4 +160,9 @@ select user_id, max(apelido) as apelido, sum(pontos)::bigint as pontos,
 from public.pontuacoes_quiz
 group by user_id;
 
+create or replace view public.ranking_batalha with (security_invoker = true) as
+select filme_slug, count(*)::bigint as votos
+from public.votos_batalha
+group by filme_slug;
+
 grant select on public.ranking_filmes, public.ranking_quiz, public.ranking_batalha to anon, authenticated;
