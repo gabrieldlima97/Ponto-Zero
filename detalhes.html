@@ -86,6 +86,8 @@ button {
     cursor: pointer;
 }
 
+.botao-plataformas{display:inline-block;margin-top:18px;padding:12px 18px;background:#e63946;color:#fff;text-decoration:none;border-radius:7px;font-weight:bold;transition:background .2s}.botao-plataformas:hover{background:#bd2632}
+
 .trailer {
     position: relative;
     width: 100%;
@@ -191,6 +193,7 @@ footer {
             <div id="etiquetas"></div>
             <p id="sinopse"></p>
             <p id="direcao" style="margin-top:15px"></p>
+            <a id="botaoPlataformas" class="botao-plataformas" href="onde-assistir.html">Ver em quais sites assistir</a>
         </div>
     </section>
 
@@ -359,6 +362,7 @@ if (!filme) {
         "<h1>Filme não encontrado</h1><p><a href='filmes.html'>Voltar ao catálogo</a></p>";
 } else {
     document.title = filme.titulo + " | Ponto Zero";
+    document.getElementById("botaoPlataformas").href = "onde-assistir.html#" + encodeURIComponent(slug);
     document.getElementById("titulo").textContent = filme.titulo;
     const imagemPoster = document.getElementById("poster");
     imagemPoster.alt = "Pôster de " + filme.titulo;
