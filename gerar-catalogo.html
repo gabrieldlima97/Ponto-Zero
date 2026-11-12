@@ -35,7 +35,7 @@ async function api(path,key,params={}){
  url.searchParams.set('api_key',key);url.searchParams.set('language','pt-BR');
  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,String(v)));
  let response=await fetch(url);
- if(!response.ok)throw new Error('TMDB HTTP '+response.status);
+ if(!response.ok){let detalhe='';try{const erro=await response.json();detalhe=erro.status_message||'';}catch(e){}throw new Error('TMDB HTTP '+response.status+(detalhe?' — '+detalhe:''));}
  return response.json();
 }
 async function carregarExistentes(){
@@ -70,7 +70,7 @@ button.addEventListener('click',async()=>{
  try{
    statusBox.textContent='Etapa 1/2: procurando filmes e evitando repetir os 100 títulos atuais...';
    for(let pageNum=1;pageNum<=100&&candidatos.length<1500;pageNum++){
-     const data=await api('discover/movie',key,{page:pageNum,sort_by:'popularity.desc',include_adult:false,include_video:false,with_original_language:'en|pt|ja|ko|fr|es|it|de|hi',vote_count_gte:10});
+     const data=await api('discover/movie',key,{page:pageNum,sort_by:'popularity.desc',include_adult:false,include_video:false, 'vote_count.gte':10});
      for(const m of (data.results||[])){
        if(!m.poster_path||!m.overview||!m.release_date||!m.genre_ids?.length)continue;
        const year=Number(m.release_date.slice(0,4));
