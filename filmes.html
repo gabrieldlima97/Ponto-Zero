@@ -800,7 +800,7 @@ botoes.forEach(botao=>botao.addEventListener("click",()=>{
     sb.auth.onAuthStateChange((_event,session)=>{
       if(session?.user){
         setTimeout(async()=>{try{await window.PZ.syncFavorites();atualizarBotoes();filtrarFilmes()}catch(error){console.error("[Ponto Zero] Falha ao sincronizar favoritos:",error)}},0);
-      }else{window.PZ.clearPrivateLocalData();atualizarBotoes();filtrarFilmes()}
+      }else if(_event==="SIGNED_OUT"){window.PZ.clearPrivateLocalData();atualizarBotoes();filtrarFilmes()}
     });
     sb.auth.getSession().then(async({data,error})=>{
       if(error)throw error;
