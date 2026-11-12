@@ -664,6 +664,25 @@ footer{text-align:center;padding:30px;color:#777;border-top:1px solid #292930;ma
   <p class="aviso">A disponibilidade dos filmes muda conforme o país e a data. Confira a plataforma antes de assinar, alugar ou comprar.</p>
 </main>
 <footer><p>© 2026 Ponto Zero. Todos os direitos reservados.</p></footer>
+<script src="catalogo-1000.js?v=1"></script>
+<script>
+(function(){
+ const lista=document.getElementById("listaFilmes");
+ (window.catalogo1000||[]).forEach(f=>{
+   const card=document.createElement("article");
+   card.className="card";card.dataset.genero=f.categoria||"drama";
+   const img=document.createElement("img");img.src=f.poster||"";img.alt="Pôster de "+f.titulo;img.loading="lazy";
+   img.onerror=function(){this.onerror=null;this.src="https://placehold.co/500x750/17171e/e63946?text="+encodeURIComponent(f.titulo);};
+   const info=document.createElement("div");info.className="info";
+   const h=document.createElement("h3");h.textContent=f.titulo;
+   const p=document.createElement("p");p.className="genero";p.textContent=(f.genero||"Filme")+" • "+(f.ano||"");
+   const a=document.createElement("a");a.className="detalhes";a.href="detalhes.html?filme="+encodeURIComponent(f.slug);a.textContent="Ver detalhes →";
+   info.append(h,p,a);card.append(img,info);lista.appendChild(card);
+ });
+ const h=document.querySelector(".catalogo h2");
+ if(h)h.textContent="🎬 Explore os filmes — "+(100+(window.catalogo1000||[]).length)+" títulos";
+})();
+</script>
 <script>
 const busca=document.getElementById("busca");
 const botoes=document.querySelectorAll(".filtros button");
