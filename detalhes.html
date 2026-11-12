@@ -199,12 +199,16 @@ footer {
 
     <section>
         <h2>🎬 Trailer</h2>
-        <div class="trailer">
+        <div class="trailer" id="areaTrailer">
             <iframe id="trailer"
                 title="Trailer do filme"
                 allowfullscreen
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
             </iframe>
+        </div>
+        <div id="trailerIndisponivel" style="display:none;max-width:800px;background:#17171e;border:1px solid #333;border-radius:12px;padding:22px">
+            <p style="margin-bottom:14px">Ainda não temos um trailer cadastrado para este filme.</p>
+            <a id="buscarTrailer" href="#" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 18px;background:#e63946;color:#fff;text-decoration:none;border-radius:7px;font-weight:bold">▶ Buscar trailer no YouTube</a>
         </div>
     </section>
 
@@ -386,8 +390,15 @@ if (!filme) {
          <span class="etiqueta">${filme.ano}</span>
          <span class="etiqueta">${filme.duracao}</span>`;
 
-    if (filme.trailer) document.getElementById("trailer").src = "https://www.youtube.com/embed/" + filme.trailer;
-    else document.querySelector(".trailer").parentElement.style.display = "none";
+    if (filme.trailer) {
+        document.getElementById("trailer").src = "https://www.youtube.com/embed/" + filme.trailer;
+    } else {
+        document.getElementById("areaTrailer").style.display = "none";
+        document.getElementById("trailerIndisponivel").style.display = "block";
+        document.getElementById("buscarTrailer").href =
+            "https://www.youtube.com/results?search_query=" +
+            encodeURIComponent(filme.titulo + " " + filme.ano + " trailer");
+    }
 }
 
 // Avaliações e comentários compartilhados pelo Supabase.
