@@ -18,12 +18,13 @@
 <section class="secao" id="estreias"><h2>🍿 Próximos lançamentos</h2><p class="muted">Filmes cadastrados com ano de lançamento futuro no catálogo. As datas podem mudar.</p><div id="proximos" class="grid"></div><p class="aviso">Consulte também o calendário atualizado do <a style="color:#ff7b84" href="https://www.themoviedb.org/movie/upcoming" target="_blank" rel="noopener">TMDB — próximos filmes</a>.</p></section>
 <section class="secao" id="batalha"><h2>⚔️ Batalha de filmes</h2><p class="muted">Escolha seu favorito entre dois filmes. Os votos desta brincadeira ficam salvos apenas neste navegador.</p><div class="grid" id="duelo"></div><div class="linha" style="margin-top:14px"><button id="novoDuelo" class="secundario">Sortear outra batalha</button><span id="placar" class="placar"></span></div></section>
 </main><footer>© 2026 Ponto Zero. Todos os direitos reservados.</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script><script src="catalogo-1000.js?v=1"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script><script src="catalogo-extra.js"></script><script src="posteres.js?v=2"></script><script src="catalogo-1000.js?v=1"></script><script>
 (function(){
 const catalogo=window.catalogo1000||[];
 const generos=['Ação','Animação','Aventura','Comédia','Crime','Drama','Fantasia','Ficção científica','Romance','Suspense','Terror'];
 const slugify=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const filmes=catalogo.map(f=>({...f,slug:f.slug||slugify(f.titulo)}));
+const extras=(window.filmesExtras||[]).map(([slug,titulo,ano,genero,duracao,diretor,sinopse])=>({slug,titulo,ano,genero,duracao,direcao:diretor,sinopse,poster:(window.posterExtras||{})[slug]||''}));
+const filmes=[...extras,...catalogo].map(f=>({...f,slug:f.slug||slugify(f.titulo)}));
 const ler=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(d))}catch(e){return d}};
 const salvar=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 function card(f){const el=document.createElement('article');el.className='filme';const img=document.createElement('img');img.src=f.poster||'';img.alt='Pôster de '+f.titulo;img.loading='lazy';img.onerror=()=>{img.onerror=null;img.src='https://placehold.co/400x600/20202a/ffffff?text='+encodeURIComponent(f.titulo)};const box=document.createElement('div');const h=document.createElement('h3');h.textContent=f.titulo;const p=document.createElement('p');p.className='aviso';p.textContent=(f.ano||'')+' • '+(f.genero||'');const a=document.createElement('a');a.href='detalhes.html?filme='+encodeURIComponent(f.slug);a.textContent='Ver detalhes →';box.append(h,p,a);el.append(img,box);return el}
