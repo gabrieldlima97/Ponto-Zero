@@ -592,7 +592,7 @@ if (!filme) {
             .limit(100);
         if(error)throw error;
         comentarios=data||[];
-        mostrarComentarios();
+        await mostrarComentarios();
         mensagem.textContent="";
     }
 
