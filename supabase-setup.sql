@@ -519,3 +519,45 @@ drop policy if exists "Admins can delete comments" on public.comentarios;
 create policy "Comments: owner or admin delete" on public.comentarios for delete to authenticated
  using ((select auth.uid())=user_id or (select private.is_admin()));
 create index if not exists comentarios_user_created_idx on public.comentarios(user_id,criado_em desc);
+
+
+-- ============================================================
+-- PONTO ZERO: CURTIDAS DE COMENTÁRIOS E PONTO ZERO AWARDS
+-- Também aplicado ao projeto Supabase conectado.
+-- ============================================================
+create table if not exists public.curtidas_comentarios (
+  comentario_id bigint not null references public.comentarios(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  criado_em timestamptz not null default now(),
+  primary key (comentario_id, user_id)
+);
+alter table public.curtidas_comentarios enable row level security;
+drop policy if exists "Curtidas: leitura pública" on public.curtidas_comentarios;
+drop policy if exists "Curtidas: inserir própria" on public.curtidas_comentarios;
+drop policy if exists "Curtidas: remover própria" on public.curtidas_comentarios;
+create policy "Curtidas: leitura pública" on public.curtidas_comentarios for select to anon, authenticated using (true);
+create policy "Curtidas: inserir própria" on public.curtidas_comentarios for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "Curtidas: remover própria" on public.curtidas_comentarios for delete to authenticated using ((select auth.uid()) = user_id);
+grant select on public.curtidas_comentarios to anon, authenticated;
+grant insert, delete on public.curtidas_comentarios to authenticated;
+create index if not exists curtidas_comentarios_user_idx on public.curtidas_comentarios(user_id);
+
+create table if not exists public.pz_awards_votos (
+  id bigint generated always as identity primary key,
+  ano integer not null default extract(year from now())::integer,
+  categoria text not null check (categoria in ('melhor_filme','melhor_direcao','favorito_comunidade')),
+  filme_slug text not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  criado_em timestamptz not null default now(),
+  unique (ano, categoria, user_id)
+);
+alter table public.pz_awards_votos enable row level security;
+drop policy if exists "Awards: resultados públicos" on public.pz_awards_votos;
+drop policy if exists "Awards: votar uma vez" on public.pz_awards_votos;
+drop policy if exists "Awards: alterar voto próprio" on public.pz_awards_votos;
+create policy "Awards: resultados públicos" on public.pz_awards_votos for select to anon, authenticated using (true);
+create policy "Awards: votar uma vez" on public.pz_awards_votos for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "Awards: alterar voto próprio" on public.pz_awards_votos for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+grant select on public.pz_awards_votos to anon, authenticated;
+grant insert, update on public.pz_awards_votos to authenticated;
+create index if not exists pz_awards_resultado_idx on public.pz_awards_votos(ano,categoria,filme_slug);
