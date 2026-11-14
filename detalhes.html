@@ -522,7 +522,7 @@ if (!filme) {
             " de 5 estrelas ("+data.length+(data.length===1?" avaliação).":" avaliações).");
     }
 
-    function mostrarComentarios(){
+    async function mostrarComentarios(){
         lista.replaceChildren();
         if(!comentarios.length){
             const vazio=document.createElement("p");
