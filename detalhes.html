@@ -172,7 +172,7 @@ footer {
 .comentario-cabecalho{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .comentario strong{color:#e63946}
 .comentario time{color:#888;font-size:12px}
-.comentario p{margin:0;color:#ddd;white-space:pre-wrap}
+.comentario p{margin:0;color:#ddd;white-space:pre-wrap}.curtir-comentario{margin-top:12px;padding:7px 11px;border:1px solid #444;border-radius:7px;background:#22222c;color:#fff;cursor:pointer}.curtir-comentario:disabled{opacity:.6;cursor:not-allowed}
 @media(max-width:600px){.rodape-form .botao{width:100%}}
 
 
@@ -549,6 +549,36 @@ if (!filme) {
             const texto=document.createElement("p");
             texto.textContent=comentario.texto||"";
             card.append(cabecalho,texto);
+            const likeButton=document.createElement("button");
+            likeButton.type="button";
+            likeButton.className="curtir-comentario";
+            likeButton.disabled=!usuario;
+            likeButton.textContent="♡ Curtir";
+            const commentId=comentario.id;
+            const updateLikeLabel=async()=>{
+                const {data:likes,error}=await db.from("curtidas_comentarios").select("user_id").eq("comentario_id",commentId);
+                if(error){likeButton.textContent="♡ Curtir";return}
+                const liked=(likes||[]).some(x=>x.user_id===usuario?.id);
+                likeButton.textContent=(liked?"♥ Curtido":"♡ Curtir")+" · "+(likes?.length||0);
+                likeButton.setAttribute("aria-pressed",String(liked));
+            };
+            if(usuario){
+                await updateLikeLabel();
+                likeButton.addEventListener("click",async()=>{
+                    likeButton.disabled=true;
+                    try{
+                        const {data:mine,error}=await db.from("curtidas_comentarios").select("comentario_id").eq("comentario_id",commentId).eq("user_id",usuario.id).maybeSingle();
+                        if(error)throw error;
+                        const result=mine
+                            ? await db.from("curtidas_comentarios").delete().eq("comentario_id",commentId).eq("user_id",usuario.id)
+                            : await db.from("curtidas_comentarios").insert({comentario_id:commentId,user_id:usuario.id});
+                        if(result.error)throw result.error;
+                        await updateLikeLabel();
+                    }catch(error){mensagem.textContent="Não foi possível atualizar a curtida.";console.error(error)}
+                    finally{likeButton.disabled=false}
+                });
+            }else likeButton.textContent="♡ Entre para curtir";
+            card.appendChild(likeButton);
             lista.appendChild(card);
         });
     }
@@ -556,7 +586,7 @@ if (!filme) {
     async function carregarComentarios(){
         mensagem.textContent="Carregando opiniões...";
         const {data,error}=await db.from("comentarios")
-            .select("nome,texto,criado_em")
+            .select("id,user_id,nome,texto,criado_em")
             .eq("filme_slug",slug)
             .order("criado_em",{ascending:false})
             .limit(100);
